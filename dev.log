@@ -1,0 +1,529 @@
+
+> bharatcompliance@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.10:3000
+- Environments: .env.local
+✓ Ready in 145ms
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/anirudh/Projects/bharatcompliance/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/anirudh/Projects/bharatcompliance/bharatcompliance/package-lock.json
+
+
+ GET /invoice/upload 200 in 1220ms (next.js: 71ms, proxy.ts: 454ms, application-code: 694ms)
+ GET /invoice/upload 200 in 363ms (next.js: 7ms, proxy.ts: 101ms, application-code: 254ms)
+ GET / 307 in 173ms (next.js: 23ms, proxy.ts: 63ms, application-code: 87ms)
+ GET /dashboard 200 in 447ms (next.js: 23ms, proxy.ts: 49ms, application-code: 375ms)
+ GET /invoice/upload 200 in 102ms (next.js: 3ms, proxy.ts: 84ms, application-code: 14ms)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ POST /api/invoice/upload 200 in 663ms (next.js: 64ms, proxy.ts: 113ms, application-code: 486ms)
+⨯ Error: 400 {"type":"error","error":{"type":"invalid_request_error","message":"Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."},"request_id":"req_011CbT71Ws9DzidtwyUBQ9xR"}
+    at async parseInvoiceFromBase64 (src/lib/claude/index.ts:81:20)
+    at async POST (src/app/api/ai/parse-invoice/route.ts:34:33)
+  79 |       ];
+  80 |
+> 81 |   const response = await client.messages.create({
+     |                    ^
+  82 |     model: "claude-sonnet-4-20250514",
+  83 |     max_tokens: 2048,
+  84 |     messages: [{ role: "user", content: messageContent }], {
+  status: 400,
+  headers: Headers {
+    date: 'Wed, 27 May 2026 12:51:50 GMT',
+    'content-type': 'application/json',
+    'transfer-encoding': 'chunked',
+    connection: 'keep-alive',
+    'x-should-retry': 'false',
+    'request-id': 'req_011CbT71Ws9DzidtwyUBQ9xR',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'anthropic-organization-id': '601f65cf-1b11-4792-a1a0-431bda7f6d47',
+    traceresponse: '00-b0b0649a5e9013c5f513b7e2ae6441be-37c0596518501434-01',
+    server: 'cloudflare',
+    'x-envoy-upstream-service-time': '2',
+    'content-encoding': 'gzip',
+    vary: 'Accept-Encoding',
+    'set-cookie': '_cfuvid=LoZXfdE5ODbn4VJCMf3jMmKdClgKSa8foC5jApqr6Eo-1779886309.4012113-1.0.1.1-5da2K44U9SwuDNdeGghG1RCDF.t4oaZPFeNJ_uTZQCE; HttpOnly; SameSite=None; Secure; Path=/; Domain=api.anthropic.com',
+    'x-robots-tag': 'none',
+    'cf-cache-status': 'DYNAMIC',
+    'content-security-policy': "default-src 'none'; frame-ancestors 'none'",
+    'cf-ray': 'a0252739bb0f898d-DEL'
+  },
+  requestID: 'req_011CbT71Ws9DzidtwyUBQ9xR',
+  error: {
+    type: 'error',
+    error: {
+      type: 'invalid_request_error',
+      message: 'Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits.'
+    },
+    request_id: 'req_011CbT71Ws9DzidtwyUBQ9xR'
+  }
+}
+ POST /api/ai/parse-invoice 500 in 1393ms (next.js: 48ms, proxy.ts: 51ms, application-code: 1295ms)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ POST /api/invoice/upload 200 in 899ms (next.js: 4ms, proxy.ts: 523ms, application-code: 372ms)
+ POST /api/ai/parse-invoice 200 in 7.8s (next.js: 5ms, proxy.ts: 54ms, application-code: 7.7s)
+[browser] You are trying to animate background from "hsl(var(--border))" to "#059669". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--muted))" to "#f97316". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--border))" to "#059669". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--muted))" to "#f97316". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ POST /api/invoice 201 in 884ms (next.js: 252ms, proxy.ts: 188ms, application-code: 444ms)
+[browser] You are trying to animate background from "hsl(var(--border))" to "#059669". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--muted))" to "#f97316". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ GET /invoice/history 404 in 102ms (next.js: 31ms, proxy.ts: 52ms, application-code: 20ms)
+ GET /invoice/history 404 in 65ms (next.js: 3ms, proxy.ts: 46ms, application-code: 16ms)
+ GET / 307 in 400ms (next.js: 7ms, proxy.ts: 304ms, application-code: 89ms)
+⨯ Error: Attempted to call createMotionComponent() from the server but createMotionComponent is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at <unknown> (src/components/dashboard/RecentActivity.tsx:87:21)
+    at Array.map (<anonymous>)
+    at RecentActivity (src/components/dashboard/RecentActivity.tsx:84:31)
+  85 |           const status = STATUS_CONFIG[invoice.status];
+  86 |           return (
+> 87 |             <motion.li
+     |                     ^
+  88 |               key={invoice.id}
+  89 |               initial={{ opacity: 0, x: 8 }}
+  90 |               animate={{ opacity: 1, x: 0 }} {
+  digest: '4240882714'
+}
+ GET /dashboard 200 in 287ms (next.js: 2ms, proxy.ts: 45ms, application-code: 239ms)
+[browser] Uncaught Error: Attempted to call createMotionComponent() from the server but createMotionComponent is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component.
+    at Object.get (node_modules/framer-motion/src/render/components/create-proxy.ts:76:42)
+    at <anonymous> (src/components/dashboard/RecentActivity.tsx:87:21)
+    at Array.map (<anonymous>:1:18)
+    at RecentActivity (src/components/dashboard/RecentActivity.tsx:84:31)
+    at DashboardPage (src/app/(app)/dashboard/page.tsx:180:7)
+  74 |                 componentCache.set(
+  75 |                     key,
+> 76 |                     createMotionComponent(
+     |                                          ^
+  77 |                         key,
+  78 |                         undefined,
+  79 |                         preloadedFeatures,
+✓ Compiled in 501ms
+⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /dashboard 200 in 976ms (next.js: 80ms, proxy.ts: 271ms, application-code: 625ms)
+ GET /settings?tab=billing 404 in 140ms (next.js: 12ms, proxy.ts: 96ms, application-code: 31ms)
+ GET /settings?tab=billing 404 in 72ms (next.js: 4ms, proxy.ts: 48ms, application-code: 21ms)
+ GET /dashboard 200 in 353ms (next.js: 4ms, proxy.ts: 77ms, application-code: 271ms)
+✓ Compiled in 124ms
+ GET /dashboard 200 in 214ms (next.js: 39ms, proxy.ts: 116ms, application-code: 58ms)
+ GET /dashboard 200 in 60ms (next.js: 1179µs, proxy.ts: 40ms, application-code: 19ms)
+ GET /dashboard 200 in 68ms (next.js: 1640µs, proxy.ts: 44ms, application-code: 23ms)
+ GET /dashboard 200 in 124ms (next.js: 1572µs, proxy.ts: 94ms, application-code: 28ms)
+ GET /dashboard 200 in 71ms (next.js: 1573µs, proxy.ts: 44ms, application-code: 26ms)
+ GET /dashboard 200 in 66ms (next.js: 2ms, proxy.ts: 42ms, application-code: 22ms)
+ GET /dashboard 200 in 963ms (next.js: 4ms, proxy.ts: 389ms, application-code: 570ms)
+ GET /invoice/history 404 in 85ms (next.js: 11ms, proxy.ts: 57ms, application-code: 17ms)
+ GET /invoice/history 404 in 72ms (next.js: 3ms, proxy.ts: 50ms, application-code: 20ms)
+ GET /dashboard 200 in 374ms (next.js: 4ms, proxy.ts: 80ms, application-code: 290ms)
+ GET /invoice/upload 200 in 88ms (next.js: 19ms, proxy.ts: 52ms, application-code: 17ms)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ POST /api/invoice/upload 200 in 795ms (next.js: 63ms, proxy.ts: 78ms, application-code: 654ms)
+ POST /api/ai/parse-invoice 200 in 6.3s (next.js: 49ms, proxy.ts: 49ms, application-code: 6.2s)
+[browser] You are trying to animate background from "hsl(var(--border))" to "#059669". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--muted))" to "#f97316". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--border))". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "rgba(0, 0, 0, 0) none repeat scroll 0% 0% / auto padding-box border-box" to "hsl(var(--muted))". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ POST /api/invoice/upload 200 in 362ms (next.js: 3ms, proxy.ts: 82ms, application-code: 276ms)
+ POST /api/ai/parse-invoice 200 in 5.4s (next.js: 7ms, proxy.ts: 115ms, application-code: 5.3s)
+[browser] You are trying to animate background from "hsl(var(--border))" to "#059669". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--muted))" to "#f97316". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--border))" to "#059669". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--muted))" to "#f97316". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ POST /api/invoice 201 in 273ms (next.js: 32ms, proxy.ts: 81ms, application-code: 160ms)
+[browser] You are trying to animate background from "hsl(var(--border))" to "#059669". "hsl(var(--border))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+[browser] You are trying to animate background from "hsl(var(--muted))" to "#f97316". "hsl(var(--muted))" is not an animatable value.. For more information and steps for solving, visit https://motion.dev/troubleshooting/value-not-animatable (<anonymous>)
+ GET /invoice/history 404 in 159ms (next.js: 8ms, proxy.ts: 130ms, application-code: 21ms)
+ GET /invoice/history 404 in 81ms (next.js: 7ms, proxy.ts: 50ms, application-code: 25ms)
+ GET / 307 in 231ms (next.js: 18ms, proxy.ts: 127ms, application-code: 85ms)
+ GET /dashboard 200 in 260ms (next.js: 1587µs, proxy.ts: 47ms, application-code: 212ms)
+ GET /invoice/upload 200 in 104ms (next.js: 4ms, proxy.ts: 80ms, application-code: 20ms)
+ GET /gstr 404 in 298ms (next.js: 8ms, proxy.ts: 276ms, application-code: 14ms)
+ GET /gstr 404 in 73ms (next.js: 5ms, proxy.ts: 45ms, application-code: 23ms)
+ GET /invoice/upload 200 in 253ms (next.js: 5ms, proxy.ts: 47ms, application-code: 201ms)
+ GET /invoice/upload 200 in 593ms (next.js: 77ms, proxy.ts: 453ms, application-code: 63ms)
+ GET /invoice/upload 200 in 65ms (next.js: 1127µs, proxy.ts: 50ms, application-code: 14ms)
+ GET /invoice/upload 200 in 66ms (next.js: 1425µs, proxy.ts: 47ms, application-code: 18ms)
+ GET /invoice/upload 200 in 65ms (next.js: 1353µs, proxy.ts: 48ms, application-code: 16ms)
+ GET /invoice/upload 200 in 169ms (next.js: 3ms, proxy.ts: 138ms, application-code: 27ms)
+ GET /invoice/upload 200 in 72ms (next.js: 1726µs, proxy.ts: 52ms, application-code: 18ms)
+ GET /invoice/upload 200 in 69ms (next.js: 1510µs, proxy.ts: 47ms, application-code: 20ms)
+ GET /invoice/upload 200 in 68ms (next.js: 1432µs, proxy.ts: 47ms, application-code: 19ms)
+ GET /invoice/upload 200 in 72ms (next.js: 1305µs, proxy.ts: 48ms, application-code: 23ms)
+ GET /invoice/upload 200 in 63ms (next.js: 1181µs, proxy.ts: 48ms, application-code: 14ms)
+ GET /invoice/upload 200 in 64ms (next.js: 1279µs, proxy.ts: 46ms, application-code: 17ms)
+ GET /invoice/upload 200 in 122ms (next.js: 1646µs, proxy.ts: 103ms, application-code: 18ms)
+ GET /invoice/upload 200 in 68ms (next.js: 1433µs, proxy.ts: 48ms, application-code: 19ms)
+ GET /invoice/upload 200 in 63ms (next.js: 1323µs, proxy.ts: 46ms, application-code: 16ms)
+ GET /invoice/upload 200 in 73ms (next.js: 1736µs, proxy.ts: 49ms, application-code: 21ms)
+ GET /invoice/upload 200 in 65ms (next.js: 1957µs, proxy.ts: 47ms, application-code: 16ms)
+ GET /invoice/upload 200 in 66ms (next.js: 1430µs, proxy.ts: 46ms, application-code: 19ms)
+ GET /invoice/upload 200 in 64ms (next.js: 1303µs, proxy.ts: 46ms, application-code: 16ms)
+ GET /invoice/upload 200 in 151ms (next.js: 3ms, proxy.ts: 123ms, application-code: 25ms)
+ GET /invoice/upload 200 in 69ms (next.js: 1613µs, proxy.ts: 48ms, application-code: 19ms)
+ GET /invoice/upload 200 in 72ms (next.js: 1635µs, proxy.ts: 49ms, application-code: 21ms)
+ GET /invoice/upload 200 in 63ms (next.js: 1539µs, proxy.ts: 46ms, application-code: 15ms)
+ GET /invoice/upload 200 in 248ms (next.js: 41ms, proxy.ts: 156ms, application-code: 50ms)
+ GET /invoice/upload 200 in 202ms (next.js: 6ms, proxy.ts: 64ms, application-code: 132ms)
+ GET /invoice/upload 200 in 201ms (next.js: 27ms, proxy.ts: 64ms, application-code: 110ms)
+ GET /invoice/upload 200 in 196ms (next.js: 3ms, proxy.ts: 142ms, application-code: 51ms)
+ GET /invoice/upload 200 in 205ms (next.js: 20ms, proxy.ts: 151ms, application-code: 34ms)
+ GET /invoice/upload 200 in 206ms (next.js: 11ms, proxy.ts: 150ms, application-code: 45ms)
+ GET /invoice/upload 200 in 174ms (next.js: 22ms, proxy.ts: 115ms, application-code: 37ms)
+ GET /invoice/upload 200 in 178ms (next.js: 4ms, proxy.ts: 118ms, application-code: 56ms)
+ GET /invoice/upload 200 in 175ms (next.js: 13ms, proxy.ts: 115ms, application-code: 47ms)
+ GET /invoice/upload 200 in 175ms (next.js: 45ms, proxy.ts: 117ms, application-code: 13ms)
+ GET /invoice/upload 200 in 65ms (next.js: 1289µs, proxy.ts: 49ms, application-code: 14ms)
+ GET /invoice/upload 200 in 40s (next.js: 1220µs, proxy.ts: 40s, application-code: 12ms)
+ GET /invoice/upload 200 in 66ms (next.js: 1423µs, proxy.ts: 48ms, application-code: 16ms)
+ GET /invoice/upload 200 in 80ms (next.js: 1625µs, proxy.ts: 64ms, application-code: 15ms)
+ GET /invoice/upload 200 in 1164ms (next.js: 5ms, proxy.ts: 1119ms, application-code: 40ms)
+ GET /invoice/upload 200 in 1165ms (next.js: 21ms, proxy.ts: 1120ms, application-code: 24ms)
+ GET /invoice/upload 200 in 76ms (next.js: 1400µs, proxy.ts: 44ms, application-code: 31ms)
+ GET /invoice/upload 200 in 77ms (next.js: 1224µs, proxy.ts: 63ms, application-code: 12ms)
+ GET /invoice/upload 200 in 70ms (next.js: 1270µs, proxy.ts: 42ms, application-code: 27ms)
+ GET /invoice/upload 200 in 70ms (next.js: 1125µs, proxy.ts: 57ms, application-code: 11ms)
+ GET /invoice/upload 200 in 71ms (next.js: 1130µs, proxy.ts: 41ms, application-code: 29ms)
+ GET /invoice/upload 200 in 73ms (next.js: 1205µs, proxy.ts: 58ms, application-code: 14ms)
+ GET /invoice/upload 200 in 148ms (next.js: 1923µs, proxy.ts: 114ms, application-code: 32ms)
+ GET /invoice/upload 200 in 151ms (next.js: 1241µs, proxy.ts: 137ms, application-code: 13ms)
+ GET /invoice/upload 200 in 68ms (next.js: 1268µs, proxy.ts: 40ms, application-code: 27ms)
+ GET /invoice/upload 200 in 68ms (next.js: 1143µs, proxy.ts: 55ms, application-code: 12ms)
+ GET /invoice/upload 200 in 68ms (next.js: 1172µs, proxy.ts: 41ms, application-code: 26ms)
+ GET /invoice/upload 200 in 68ms (next.js: 1094µs, proxy.ts: 55ms, application-code: 11ms)
+ GET /invoice/upload 200 in 70ms (next.js: 1678µs, proxy.ts: 43ms, application-code: 25ms)
+ GET /invoice/upload 200 in 71ms (next.js: 9ms, proxy.ts: 44ms, application-code: 18ms)
+ GET /invoice/upload 200 in 75ms (next.js: 1657µs, proxy.ts: 46ms, application-code: 27ms)
+ GET /invoice/upload 200 in 77ms (next.js: 2ms, proxy.ts: 63ms, application-code: 12ms)
+ GET /invoice/upload 200 in 74ms (next.js: 2ms, proxy.ts: 46ms, application-code: 25ms)
+ GET /invoice/upload 200 in 75ms (next.js: 9ms, proxy.ts: 48ms, application-code: 18ms)
+ GET /invoice/upload 200 in 162ms (next.js: 1946µs, proxy.ts: 125ms, application-code: 34ms)
+ GET /invoice/upload 200 in 162ms (next.js: 1268µs, proxy.ts: 148ms, application-code: 13ms)
+ GET /invoice/upload 200 in 75ms (next.js: 1708µs, proxy.ts: 46ms, application-code: 27ms)
+ GET /invoice/upload 200 in 74ms (next.js: 10ms, proxy.ts: 46ms, application-code: 19ms)
+ GET /invoice/upload 200 in 70ms (next.js: 1260µs, proxy.ts: 43ms, application-code: 26ms)
+ GET /invoice/upload 200 in 70ms (next.js: 1079µs, proxy.ts: 58ms, application-code: 11ms)
+ GET /invoice/upload 200 in 66ms (next.js: 1189µs, proxy.ts: 50ms, application-code: 15ms)
+ GET /invoice/upload 200 in 53ms (next.js: 1159µs, proxy.ts: 39ms, application-code: 13ms)
+ GET /dashboard 200 in 78ms (next.js: 10ms, proxy.ts: 40ms, application-code: 27ms)
+ GET /dashboard 200 in 72ms (next.js: 2ms, proxy.ts: 42ms, application-code: 28ms)
+ GET /dashboard 200 in 69ms (next.js: 1842µs, proxy.ts: 42ms, application-code: 25ms)
+ GET /dashboard 200 in 11.7s (next.js: 1531µs, proxy.ts: 44ms, application-code: 11.6s)
+✓ Compiled in 77ms
+✓ Compiled in 55ms
+✓ Compiled in 56ms
+✓ Compiled in 66ms
+ GET /dashboard 200 in 570ms (next.js: 69ms, proxy.ts: 424ms, application-code: 77ms)
+ GET /dashboard 200 in 68ms (next.js: 1107µs, proxy.ts: 47ms, application-code: 19ms)
+ GET /dashboard 200 in 140ms (next.js: 1682µs, proxy.ts: 112ms, application-code: 27ms)
+ GET /dashboard 200 in 69ms (next.js: 1370µs, proxy.ts: 43ms, application-code: 25ms)
+ GET /dashboard 200 in 64ms (next.js: 1256µs, proxy.ts: 38ms, application-code: 24ms)
+ GET /dashboard 200 in 64ms (next.js: 1258µs, proxy.ts: 42ms, application-code: 20ms)
+ GET /dashboard 200 in 61ms (next.js: 1260µs, proxy.ts: 37ms, application-code: 22ms)
+ GET /dashboard 200 in 66ms (next.js: 1197µs, proxy.ts: 41ms, application-code: 24ms)
+ GET /dashboard 200 in 62ms (next.js: 1227µs, proxy.ts: 38ms, application-code: 23ms)
+ GET /dashboard 200 in 123ms (next.js: 1672µs, proxy.ts: 97ms, application-code: 24ms)
+ GET /dashboard 200 in 66ms (next.js: 1386µs, proxy.ts: 40ms, application-code: 24ms)
+ GET /dashboard 200 in 64ms (next.js: 1331µs, proxy.ts: 40ms, application-code: 23ms)
+ GET /dashboard 200 in 63ms (next.js: 1145µs, proxy.ts: 40ms, application-code: 21ms)
+ GET /dashboard 200 in 64ms (next.js: 1246µs, proxy.ts: 41ms, application-code: 21ms)
+ GET /dashboard 200 in 63ms (next.js: 1377µs, proxy.ts: 39ms, application-code: 22ms)
+ GET /dashboard 200 in 67ms (next.js: 1223µs, proxy.ts: 41ms, application-code: 24ms)
+ GET /dashboard 200 in 60ms (next.js: 1091µs, proxy.ts: 37ms, application-code: 22ms)
+ GET /dashboard 200 in 135ms (next.js: 1792µs, proxy.ts: 107ms, application-code: 27ms)
+ GET /dashboard 200 in 63ms (next.js: 1388µs, proxy.ts: 37ms, application-code: 24ms)
+ GET /dashboard 200 in 65ms (next.js: 1222µs, proxy.ts: 41ms, application-code: 23ms)
+ GET /dashboard 200 in 61ms (next.js: 1271µs, proxy.ts: 37ms, application-code: 23ms)
+ GET /dashboard 200 in 64ms (next.js: 1460µs, proxy.ts: 41ms, application-code: 22ms)
+ GET /dashboard 200 in 62ms (next.js: 1320µs, proxy.ts: 37ms, application-code: 24ms)
+ GET /dashboard 200 in 67ms (next.js: 1314µs, proxy.ts: 42ms, application-code: 23ms)
+ GET /dashboard 200 in 124ms (next.js: 1753µs, proxy.ts: 96ms, application-code: 27ms)
+ GET /dashboard 200 in 66ms (next.js: 1374µs, proxy.ts: 41ms, application-code: 23ms)
+ GET /dashboard 200 in 69ms (next.js: 1400µs, proxy.ts: 39ms, application-code: 29ms)
+ GET /dashboard 200 in 69ms (next.js: 1392µs, proxy.ts: 44ms, application-code: 23ms)
+ GET /dashboard 200 in 61ms (next.js: 1356µs, proxy.ts: 38ms, application-code: 22ms)
+ GET /dashboard 200 in 69ms (next.js: 1284µs, proxy.ts: 47ms, application-code: 21ms)
+ GET /dashboard 200 in 62ms (next.js: 1519µs, proxy.ts: 38ms, application-code: 23ms)
+ GET /dashboard 200 in 149ms (next.js: 1908µs, proxy.ts: 119ms, application-code: 27ms)
+✓ Compiled in 51ms
+✓ Compiled in 81ms
+ GET /dashboard 200 in 208ms (next.js: 38ms, proxy.ts: 117ms, application-code: 53ms)
+ GET /dashboard 200 in 65ms (next.js: 1130µs, proxy.ts: 43ms, application-code: 21ms)
+ GET /dashboard 200 in 148ms (next.js: 1774µs, proxy.ts: 118ms, application-code: 28ms)
+ GET /dashboard 200 in 69ms (next.js: 1293µs, proxy.ts: 44ms, application-code: 23ms)
+ GET /dashboard 200 in 68ms (next.js: 1208µs, proxy.ts: 41ms, application-code: 25ms)
+ GET /dashboard 200 in 72ms (next.js: 1208µs, proxy.ts: 43ms, application-code: 28ms)
+ GET /dashboard 200 in 81ms (next.js: 1006µs, proxy.ts: 62ms, application-code: 19ms)
+ GET /dashboard 200 in 65ms (next.js: 1122µs, proxy.ts: 42ms, application-code: 22ms)
+ GET /dashboard 200 in 68ms (next.js: 1196µs, proxy.ts: 44ms, application-code: 23ms)
+ GET /dashboard 200 in 125ms (next.js: 1442µs, proxy.ts: 98ms, application-code: 25ms)
+ GET /dashboard 200 in 61ms (next.js: 1296µs, proxy.ts: 38ms, application-code: 22ms)
+ GET /dashboard 200 in 69ms (next.js: 1275µs, proxy.ts: 42ms, application-code: 26ms)
+ GET /dashboard 200 in 61ms (next.js: 1149µs, proxy.ts: 37ms, application-code: 22ms)
+ GET /dashboard 200 in 66ms (next.js: 1073µs, proxy.ts: 42ms, application-code: 22ms)
+ GET /dashboard 200 in 61ms (next.js: 1367µs, proxy.ts: 38ms, application-code: 22ms)
+ GET /dashboard 200 in 62ms (next.js: 1143µs, proxy.ts: 40ms, application-code: 22ms)
+ GET /dashboard 200 in 61ms (next.js: 1086µs, proxy.ts: 38ms, application-code: 22ms)
+ GET /dashboard 200 in 142ms (next.js: 1784µs, proxy.ts: 112ms, application-code: 29ms)
+ GET /dashboard 200 in 61ms (next.js: 1375µs, proxy.ts: 37ms, application-code: 23ms)
+ GET /dashboard 200 in 66ms (next.js: 1184µs, proxy.ts: 40ms, application-code: 24ms)
+ GET /dashboard 200 in 63ms (next.js: 1210µs, proxy.ts: 39ms, application-code: 23ms)
+ GET /dashboard 200 in 68ms (next.js: 1354µs, proxy.ts: 43ms, application-code: 24ms)
+ GET /dashboard 200 in 61ms (next.js: 1379µs, proxy.ts: 37ms, application-code: 22ms)
+ GET /dashboard 200 in 66ms (next.js: 1211µs, proxy.ts: 42ms, application-code: 22ms)
+ GET /dashboard 200 in 158ms (next.js: 1950µs, proxy.ts: 124ms, application-code: 32ms)
+ GET /dashboard 200 in 75ms (next.js: 1335µs, proxy.ts: 55ms, application-code: 19ms)
+ GET /dashboard 200 in 58ms (next.js: 1002µs, proxy.ts: 38ms, application-code: 19ms)
+ GET /dashboard 200 in 65ms (next.js: 1088µs, proxy.ts: 42ms, application-code: 22ms)
+ GET /dashboard 200 in 62ms (next.js: 1271µs, proxy.ts: 40ms, application-code: 21ms)
+ GET /dashboard 200 in 61ms (next.js: 1229µs, proxy.ts: 40ms, application-code: 20ms)
+ GET /dashboard 200 in 60ms (next.js: 1033µs, proxy.ts: 38ms, application-code: 22ms)
+ GET /dashboard 200 in 124ms (next.js: 1734µs, proxy.ts: 95ms, application-code: 28ms)
+ GET /dashboard 200 in 70ms (next.js: 1418µs, proxy.ts: 42ms, application-code: 27ms)
+ GET /dashboard 200 in 60ms (next.js: 1195µs, proxy.ts: 41ms, application-code: 18ms)
+ GET /login 200 in 143ms (next.js: 12ms, proxy.ts: 1289µs, application-code: 130ms)
+ GET /login 200 in 26ms (next.js: 870µs, proxy.ts: 958µs, application-code: 24ms)
+ GET /gstr 200 in 1954ms (next.js: 501ms, proxy.ts: 868ms, application-code: 586ms)
+ POST /api/gstr/upload 400 in 646ms (next.js: 124ms, proxy.ts: 469ms, application-code: 53ms)
+ POST /api/gstr/upload 400 in 138ms (next.js: 4ms, proxy.ts: 83ms, application-code: 52ms)
+ POST /api/gstr/upload 400 in 197ms (next.js: 3ms, proxy.ts: 135ms, application-code: 59ms)
+✓ Compiled in 62ms
+ GET /dashboard 200 in 1129ms (next.js: 8ms, proxy.ts: 585ms, application-code: 536ms)
+ GET /gstr 200 in 187ms (next.js: 5ms, proxy.ts: 53ms, application-code: 128ms)
+[gstr/upload] Top-level keys: [ 'data', 'gstin', 'fp', 'version' ]
+[gstr/upload] fp field: 012023
+[gstr/upload] data field type: object
+[gstr/upload] data (unwrapped) type: object keys: docdata
+[gstr/upload] docdata type: object
+[gstr/upload] docdata (unwrapped) type: object keys: b2b
+[gstr/upload] b2b type: object isArray: true
+[gstr/upload] First b2b entry keys: [ 'ctin', 'trdnm', 'inv' ]
+[gstr/upload] Processing 2 B2B supplier entries for period 2026-05
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Rows to upsert: 0
+ POST /api/gstr/upload 400 in 234ms (next.js: 5ms, proxy.ts: 162ms, application-code: 66ms)
+[gstr/upload] Top-level keys: [ 'data', 'gstin', 'fp', 'version' ]
+[gstr/upload] fp field: 012023
+[gstr/upload] data field type: object
+[gstr/upload] data (unwrapped) type: object keys: docdata
+[gstr/upload] docdata type: object
+[gstr/upload] docdata (unwrapped) type: object keys: b2b
+[gstr/upload] b2b type: object isArray: true
+[gstr/upload] First b2b entry keys: [ 'ctin', 'trdnm', 'inv' ]
+[gstr/upload] Processing 2 B2B supplier entries for period 2026-05
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Rows to upsert: 0
+ POST /api/gstr/upload 400 in 168ms (next.js: 1588µs, proxy.ts: 118ms, application-code: 48ms)
+[gstr/upload] Top-level keys: [ 'data', 'gstin', 'fp', 'version' ]
+[gstr/upload] fp field: 012023
+[gstr/upload] data field type: object
+[gstr/upload] data (unwrapped) type: object keys: docdata
+[gstr/upload] docdata type: object
+[gstr/upload] docdata (unwrapped) type: object keys: b2b
+[gstr/upload] b2b type: object isArray: true
+[gstr/upload] First b2b entry keys: [ 'ctin', 'trdnm', 'inv' ]
+[gstr/upload] Processing 2 B2B supplier entries for period 2026-05
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Rows to upsert: 0
+ POST /api/gstr/upload 400 in 200ms (next.js: 3ms, proxy.ts: 79ms, application-code: 118ms)
+[gstr/upload] Top-level keys: [ 'data', 'gstin', 'fp', 'version' ]
+[gstr/upload] fp field: 012023
+[gstr/upload] data field type: object
+[gstr/upload] data (unwrapped) type: object keys: docdata
+[gstr/upload] docdata type: object
+[gstr/upload] docdata (unwrapped) type: object keys: b2b
+[gstr/upload] b2b type: object isArray: true
+[gstr/upload] First b2b entry keys: [ 'ctin', 'trdnm', 'inv' ]
+[gstr/upload] Processing 2 B2B supplier entries for period 2026-05
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Skipping invoice — missing inum/dt. Keys: [
+  'inum',  'idt',
+  'val',   'pos',
+  'rchrg', 'inv_typ',
+  'itms'
+]
+[gstr/upload] Rows to upsert: 0
+ POST /api/gstr/upload 400 in 501ms (next.js: 3ms, proxy.ts: 437ms, application-code: 61ms)
+[gstr/upload] Top-level keys: [ 'data', 'gstin', 'fp', 'version' ]
+[gstr/upload] fp field: 012023
+[gstr/upload] data field type: object
+[gstr/upload] data (unwrapped) type: object keys: docdata
+[gstr/upload] docdata type: object
+[gstr/upload] docdata (unwrapped) type: object keys: b2b
+[gstr/upload] b2b type: object isArray: true
+[gstr/upload] First b2b entry keys: [ 'ctin', 'trdnm', 'inv' ]
+[gstr/upload] Processing 2 B2B supplier entries for period 2026-05
+[gstr/upload] Rows to upsert: 3
+[gstr/upload] Done. Entries: 3 Total ITC: 0
+ POST /api/gstr/upload 201 in 467ms (next.js: 6ms, proxy.ts: 174ms, application-code: 287ms)
+ GET /api/gstr/mismatches 200 in 263ms (next.js: 89ms, proxy.ts: 53ms, application-code: 121ms)
+ POST /api/gstr/reconcile 200 in 937ms (next.js: 80ms, proxy.ts: 373ms, application-code: 484ms)
+ GET /api/gstr/mismatches 200 in 209ms (next.js: 3ms, proxy.ts: 50ms, application-code: 155ms)
+ GET /reminders 200 in 499ms (next.js: 270ms, proxy.ts: 215ms, application-code: 14ms)
+ GET /api/reminders 200 in 704ms (next.js: 53ms, proxy.ts: 103ms, application-code: 549ms)
+ GET /api/reminders 200 in 237ms (next.js: 3ms, proxy.ts: 53ms, application-code: 181ms)
+ GET /api/reminders 200 in 333ms (next.js: 4ms, proxy.ts: 50ms, application-code: 279ms)
+ GET /api/reminders 200 in 236ms (next.js: 3ms, proxy.ts: 47ms, application-code: 186ms)
+ PATCH /api/reminders/1dc20484-ff8a-483c-89b2-267377f5ae28 200 in 983ms (next.js: 544ms, proxy.ts: 317ms, application-code: 122ms)
+ POST /api/reminders 201 in 226ms (next.js: 4ms, proxy.ts: 94ms, application-code: 128ms)
+ GET /reminders 200 in 651ms (next.js: 73ms, proxy.ts: 435ms, application-code: 143ms)
+ GET /reminders 200 in 145ms (next.js: 1169µs, proxy.ts: 73ms, application-code: 71ms)
+ GET /reminders 200 in 85ms (next.js: 1151µs, proxy.ts: 68ms, application-code: 15ms)
+ GET /reminders 200 in 59ms (next.js: 1395µs, proxy.ts: 42ms, application-code: 15ms)
+ GET /reminders 200 in 61ms (next.js: 1323µs, proxy.ts: 43ms, application-code: 17ms)
+ GET /reminders 200 in 139ms (next.js: 3ms, proxy.ts: 116ms, application-code: 21ms)
+ GET /reminders 200 in 66ms (next.js: 1902µs, proxy.ts: 42ms, application-code: 22ms)
+ GET /reminders 200 in 70ms (next.js: 1558µs, proxy.ts: 42ms, application-code: 27ms)
+ GET /reminders 200 in 69ms (next.js: 1553µs, proxy.ts: 45ms, application-code: 23ms)
+ GET /reminders 200 in 70ms (next.js: 1666µs, proxy.ts: 51ms, application-code: 18ms)
+ GET /reminders 200 in 69ms (next.js: 1751µs, proxy.ts: 44ms, application-code: 23ms)
+ GET /reminders 200 in 63ms (next.js: 1576µs, proxy.ts: 43ms, application-code: 18ms)
+ GET /reminders 200 in 143ms (next.js: 2ms, proxy.ts: 114ms, application-code: 27ms)
+ GET /reminders 200 in 67ms (next.js: 1990µs, proxy.ts: 44ms, application-code: 21ms)
+ GET /reminders 200 in 70ms (next.js: 2ms, proxy.ts: 44ms, application-code: 24ms)
+ GET /reminders 200 in 66ms (next.js: 1680µs, proxy.ts: 44ms, application-code: 20ms)
+ GET /reminders 200 in 67ms (next.js: 1674µs, proxy.ts: 42ms, application-code: 23ms)
+ GET /reminders 200 in 62ms (next.js: 1619µs, proxy.ts: 42ms, application-code: 18ms)
+ GET /reminders 200 in 61ms (next.js: 1507µs, proxy.ts: 41ms, application-code: 18ms)
+ GET /reminders 200 in 149ms (next.js: 1859µs, proxy.ts: 126ms, application-code: 21ms)
+ GET /reminders 200 in 70ms (next.js: 1917µs, proxy.ts: 45ms, application-code: 23ms)
+ GET /reminders 200 in 66ms (next.js: 1689µs, proxy.ts: 46ms, application-code: 18ms)
+ GET /reminders 200 in 67ms (next.js: 1858µs, proxy.ts: 42ms, application-code: 24ms)
+ GET /reminders 200 in 63ms (next.js: 1584µs, proxy.ts: 44ms, application-code: 17ms)
+ GET /reminders 200 in 66ms (next.js: 1767µs, proxy.ts: 44ms, application-code: 20ms)
+ GET /reminders 200 in 59ms (next.js: 1442µs, proxy.ts: 41ms, application-code: 17ms)
+ GET /reminders 200 in 163ms (next.js: 2ms, proxy.ts: 132ms, application-code: 29ms)
+ GET /reminders 200 in 69ms (next.js: 4ms, proxy.ts: 44ms, application-code: 21ms)
+ GET /reminders 200 in 70ms (next.js: 1901µs, proxy.ts: 47ms, application-code: 21ms)
+ GET /reminders 200 in 59ms (next.js: 1495µs, proxy.ts: 41ms, application-code: 16ms)
+ GET /reminders 200 in 71ms (next.js: 1474µs, proxy.ts: 43ms, application-code: 26ms)
+ GET /reminders 200 in 66ms (next.js: 1472µs, proxy.ts: 48ms, application-code: 16ms)
+ GET /reminders 200 in 59ms (next.js: 1388µs, proxy.ts: 42ms, application-code: 16ms)
+ GET /reminders 200 in 132ms (next.js: 1599µs, proxy.ts: 113ms, application-code: 17ms)
+ GET /reminders 200 in 62ms (next.js: 1525µs, proxy.ts: 42ms, application-code: 19ms)
+ GET /reminders 200 in 58ms (next.js: 1427µs, proxy.ts: 42ms, application-code: 15ms)
+✓ Compiled in 69ms
+ GET /reminders 200 in 369ms (next.js: 60ms, proxy.ts: 267ms, application-code: 42ms)
+ GET /reminders 200 in 59ms (next.js: 1154µs, proxy.ts: 43ms, application-code: 14ms)
+ GET /reminders 200 in 56ms (next.js: 1130µs, proxy.ts: 40ms, application-code: 14ms)
+ GET /reminders 200 in 64ms (next.js: 1231µs, proxy.ts: 43ms, application-code: 20ms)
+ GET /reminders 200 in 143ms (next.js: 1828µs, proxy.ts: 123ms, application-code: 19ms)
+ GET /reminders 200 in 66ms (next.js: 1500µs, proxy.ts: 43ms, application-code: 21ms)
+ GET /reminders 200 in 82ms (next.js: 1068µs, proxy.ts: 69ms, application-code: 12ms)
+ GET /reminders 200 in 56ms (next.js: 1189µs, proxy.ts: 41ms, application-code: 13ms)
+ GET /reminders 200 in 62ms (next.js: 1085µs, proxy.ts: 42ms, application-code: 18ms)
+ GET /reminders 200 in 56ms (next.js: 1286µs, proxy.ts: 41ms, application-code: 14ms)
+ GET /reminders 200 in 63ms (next.js: 1330µs, proxy.ts: 43ms, application-code: 19ms)
+ GET /reminders 200 in 57ms (next.js: 1308µs, proxy.ts: 41ms, application-code: 15ms)
+ GET /reminders 200 in 144ms (next.js: 2ms, proxy.ts: 118ms, application-code: 24ms)
+ GET /reminders 200 in 63ms (next.js: 1676µs, proxy.ts: 44ms, application-code: 17ms)
+ GET /reminders 200 in 61ms (next.js: 1525µs, proxy.ts: 40ms, application-code: 20ms)
+ GET /reminders 200 in 59ms (next.js: 1526µs, proxy.ts: 41ms, application-code: 17ms)
+ GET /reminders 200 in 62ms (next.js: 1563µs, proxy.ts: 41ms, application-code: 19ms)
+ GET /reminders 200 in 60ms (next.js: 1660µs, proxy.ts: 41ms, application-code: 18ms)
+ GET /reminders 200 in 72ms (next.js: 1603µs, proxy.ts: 44ms, application-code: 26ms)
+ GET /reminders 200 in 119ms (next.js: 1483µs, proxy.ts: 100ms, application-code: 17ms)
+ GET /reminders 200 in 63ms (next.js: 1466µs, proxy.ts: 44ms, application-code: 18ms)
+ GET /reminders 200 in 58ms (next.js: 1747µs, proxy.ts: 42ms, application-code: 15ms)
+ GET /reminders 200 in 63ms (next.js: 1626µs, proxy.ts: 43ms, application-code: 18ms)
+ GET /reminders 200 in 58ms (next.js: 1748µs, proxy.ts: 41ms, application-code: 15ms)
+ GET /reminders 200 in 61ms (next.js: 1431µs, proxy.ts: 42ms, application-code: 18ms)
+ GET /reminders 200 in 59ms (next.js: 1539µs, proxy.ts: 43ms, application-code: 15ms)
+ GET /reminders 200 in 60ms (next.js: 1704µs, proxy.ts: 41ms, application-code: 17ms)
+ GET /reminders 200 in 123ms (next.js: 1779µs, proxy.ts: 101ms, application-code: 19ms)
+ GET /reminders 200 in 66ms (next.js: 1573µs, proxy.ts: 44ms, application-code: 21ms)
+ GET /reminders 200 in 64ms (next.js: 1854µs, proxy.ts: 45ms, application-code: 17ms)
+ GET /reminders 200 in 67ms (next.js: 1492µs, proxy.ts: 44ms, application-code: 21ms)
+ GET /reminders 200 in 64ms (next.js: 1789µs, proxy.ts: 42ms, application-code: 20ms)
+ GET /reminders 200 in 64ms (next.js: 1513µs, proxy.ts: 42ms, application-code: 20ms)
+ GET /reminders 200 in 57ms (next.js: 1441µs, proxy.ts: 40ms, application-code: 15ms)
+ GET /reminders 200 in 59ms (next.js: 1295µs, proxy.ts: 41ms, application-code: 18ms)
+ GET /reminders 200 in 139ms (next.js: 1970µs, proxy.ts: 117ms, application-code: 20ms)
+ GET /reminders 200 in 63ms (next.js: 1422µs, proxy.ts: 41ms, application-code: 20ms)
+ GET /reminders 200 in 57ms (next.js: 1419µs, proxy.ts: 41ms, application-code: 14ms)

@@ -1,0 +1,27 @@
+# Claude Code should ignore these directories
+node_modules/
+.next/
+out/
+build/
+coverage/
+.git/
+
+# Large files Claude doesn't need to read
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.svg
+*.ico
+*.woff
+*.woff2
+
+# Env files (security)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*

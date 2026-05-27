@@ -1,0 +1,214 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    /* Brand colours */
+    --saffron: 25 95% 53%;       /* #f97316 */
+    --deep-green: 160 84% 39%;  /* #059669 */
+    --gold: 47 96% 53%;          /* #eab308 */
+
+    /* Light mode */
+    --background: 48 100% 98%;   /* Warm cream */
+    --foreground: 222 47% 11%;   /* Deep navy */
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 25 95% 53%;       /* Saffron */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 48 96% 89%;     /* Warm yellow */
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 160 84% 39%;       /* Deep green */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 25 95% 53%;
+    --radius: 0.625rem;
+
+    /* Fonts */
+    --font-display: "Sora", sans-serif;
+    --font-body: "DM Sans", sans-serif;
+    --font-mono: "JetBrains Mono", monospace;
+
+    /* Sidebar */
+    --sidebar-bg: 222 47% 11%;   /* Deep navy */
+    --sidebar-text: 210 40% 96%;
+    --sidebar-muted: 215 16% 47%;
+    --sidebar-accent: 25 95% 53%;
+    --sidebar-border: 217 33% 17%;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 160 84% 39%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 96%;
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 25 95% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+
+  code, pre, .font-mono {
+    font-family: var(--font-mono);
+  }
+
+  /* Tabular figures for all numeric content */
+  .tabular-nums,
+  [class*="stat-"],
+  .currency,
+  .gstin {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+@layer components {
+  /* Grain texture overlay */
+  .grain {
+    position: relative;
+  }
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 0;
+  }
+
+  /* Warm card shadow — subtle amber tint */
+  .card-warm {
+    box-shadow:
+      0 0 0 1px rgba(249, 115, 22, 0.07),
+      0 1px 2px rgba(249, 115, 22, 0.05),
+      0 4px 16px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .card-warm:hover {
+    box-shadow:
+      0 0 0 1px rgba(249, 115, 22, 0.1),
+      0 4px 24px rgba(249, 115, 22, 0.08),
+      0 8px 32px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+  }
+
+  /* Shimmer loading — warm amber tint */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(48 100% 96%) 25%,
+      hsl(45 100% 92%) 50%,
+      hsl(48 100% 96%) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
+
+  /* Status badges */
+  .badge-pending   { @apply text-amber-700 bg-amber-50 border border-amber-200; }
+  .badge-matched   { @apply text-emerald-700 bg-emerald-50 border border-emerald-200; }
+  .badge-mismatch  { @apply text-red-700 bg-red-50 border border-red-200; }
+  .badge-missing   { @apply text-gray-600 bg-gray-50 border border-gray-200; }
+  .badge-review    { @apply text-blue-700 bg-blue-50 border border-blue-200; }
+
+  /* Floating label input */
+  .floating-input {
+    @apply w-full px-4 pb-2 pt-6 rounded-lg border bg-white text-sm transition-all duration-200 outline-none;
+    @apply border-border placeholder-transparent;
+  }
+  .floating-input:focus {
+    @apply ring-2 ring-saffron-500/25 border-saffron-500;
+  }
+  .floating-input.error {
+    @apply border-destructive ring-2 ring-destructive/20;
+  }
+
+  .floating-label {
+    @apply absolute left-4 text-muted-foreground pointer-events-none select-none transition-all duration-200;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.875rem;
+  }
+  .floating-input:focus ~ .floating-label,
+  .floating-input:not(:placeholder-shown) ~ .floating-label {
+    top: 0.4rem;
+    transform: none;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: hsl(var(--primary));
+  }
+  .floating-input.error ~ .floating-label {
+    color: hsl(var(--destructive));
+  }
+
+  /* Sidebar nav item — clean indicator without broken borderLeft */
+  .nav-indicator {
+    @apply absolute left-0 inset-y-1.5 w-[3px] rounded-r-full bg-saffron-500;
+  }
+
+  /* Pulse for pending/overdue badges */
+  .badge-pulse {
+    animation: badge-pulse 2s ease-in-out infinite;
+  }
+
+  /* Upload zone animated dashed border */
+  .upload-zone-idle {
+    animation: border-dash 1.5s linear infinite;
+  }
+}
+
+@keyframes badge-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes border-dash {
+  to { stroke-dashoffset: -20; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
