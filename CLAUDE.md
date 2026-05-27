@@ -388,8 +388,8 @@ const STANDARD_GST_DATES = [
 
 ### ⬜ Phase 3 — Growth Features
 - [x] Bhashini voice input — mic button + language selector on upload page, MediaRecorder ASR via `/api/bhashini/transcribe`, text→invoice via `/api/ai/voice-parse`, "Coming soon" tooltip when keys not configured
+- [x] Razorpay subscription flow — `/settings` pricing page (Free/Vyapaar/CA), dynamic checkout.js load, `/api/payments/create-order` + `verify`, plan enforcement on `/api/gstr/reconcile` (403 for free), GSTR upgrade wall
 - [ ] WhatsApp reminder bot
-- [ ] Razorpay subscription flow
 - [ ] Multi-client (CA plan)
 
 ---

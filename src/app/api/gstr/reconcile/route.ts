@@ -34,6 +34,24 @@ export async function POST(
       );
     }
 
+    // Plan enforcement — GSTR reconciliation requires Pro or CA plan
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .single<{ plan: string }>();
+
+    if (!profile || profile.plan === "free") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "GSTR reconciliation requires the Vyapaar Pro plan or higher.",
+          code: "PLAN_UPGRADE_REQUIRED",
+        },
+        { status: 403 }
+      );
+    }
+
     // Parse optional period filter
     let period: string | undefined;
     try {

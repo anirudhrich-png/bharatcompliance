@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { GSTRPageClient } from "@/components/gstr/GSTRPageClient";
 import { MismatchTableSkeleton } from "@/components/gstr/MismatchTable";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { GSTR2BEntry, Invoice } from "@/types";
+import type { GSTR2BEntry, Invoice, Profile } from "@/types";
 
 async function GSTRData() {
   const supabase = await createSupabaseServerClient();
@@ -13,6 +13,12 @@ async function GSTRData() {
   } = await supabase.auth.getUser();
 
   if (!user) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plan")
+    .eq("id", user.id)
+    .single<Pick<Profile, "plan">>();
 
   // Fetch GSTR-2B entries
   const { data: gstrData } = await supabase
@@ -73,6 +79,7 @@ async function GSTRData() {
       initialEntries={entries}
       initialInvoiceMap={invoiceMap}
       initialSummary={summary}
+      userPlan={profile?.plan ?? "free"}
     />
   );
 }
