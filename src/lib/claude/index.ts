@@ -105,6 +105,89 @@ export async function parseInvoiceFromBase64(
   return { data: parsed, rawResponse: rawText };
 }
 
+const VOICE_PARSE_PROMPT = `You are an expert Indian GST accountant.
+A user has verbally described an invoice in their regional language. Extract structured invoice data from this description.
+Return ONLY valid JSON, no explanation, no markdown fences.
+
+The description may be in Hindi, Tamil, Telugu, Marathi, Bengali, Gujarati, or a mix of English and regional language.
+Extract whatever is mentioned; use null for anything not mentioned.
+
+Required JSON format:
+{
+  "invoice_number": string | null,
+  "invoice_date": "YYYY-MM-DD" | null,
+  "vendor_name": string | null,
+  "vendor_gstin": string | null,
+  "buyer_gstin": string | null,
+  "line_items": [{
+    "description": string,
+    "hsn_code": string | null,
+    "quantity": number | null,
+    "unit_price": number | null,
+    "taxable_amount": number,
+    "gst_rate": number,
+    "cgst": number,
+    "sgst": number,
+    "igst": number,
+    "total": number
+  }],
+  "subtotal": number,
+  "total_cgst": number,
+  "total_sgst": number,
+  "total_igst": number,
+  "total_amount": number,
+  "language_detected": string,
+  "currency": "INR",
+  "confidence_score": number
+}
+
+Rules:
+- Valid GST rates in India: 0, 5, 12, 18, 28
+- If IGST present: CGST/SGST = 0 (interstate transaction)
+- If CGST+SGST present: IGST = 0 (intrastate transaction)
+- Convert all dates to YYYY-MM-DD format
+- All monetary values must be numbers, not strings
+- confidence_score: 0.0–1.0 (lower for vague/incomplete descriptions)
+- For missing amounts, derive from available data or use 0
+- If a total amount is mentioned but tax breakdown is not, assume 18% GST unless specified`;
+
+export async function parseInvoiceFromText(
+  text: string,
+  language?: string
+): Promise<{ data: ParsedInvoiceData; rawResponse: string }> {
+  const langHint = language ? ` The description is primarily in ${language}.` : "";
+
+  const response = await client.messages.create({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 2048,
+    messages: [
+      {
+        role: "user",
+        content: `${VOICE_PARSE_PROMPT}${langHint}\n\nVerbal description:\n"${text}"`,
+      },
+    ],
+  });
+
+  const rawText = response.content
+    .filter((block) => block.type === "text")
+    .map((block) => (block as { type: "text"; text: string }).text)
+    .join("");
+
+  const cleanJson = rawText
+    .replace(/```json\n?/g, "")
+    .replace(/```\n?/g, "")
+    .trim();
+
+  let parsed: ParsedInvoiceData;
+  try {
+    parsed = JSON.parse(cleanJson) as ParsedInvoiceData;
+  } catch {
+    throw new Error(`Claude returned invalid JSON: ${cleanJson.slice(0, 200)}`);
+  }
+
+  return { data: parsed, rawResponse: rawText };
+}
+
 export async function generateComplianceSummary(
   invoiceCount: number,
   mismatches: number,

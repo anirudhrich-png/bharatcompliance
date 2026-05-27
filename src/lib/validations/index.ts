@@ -43,7 +43,7 @@ export const invoiceUploadSchema = z.object({
 });
 
 export const invoiceSaveSchema = z.object({
-  file_url: z.string().url(),
+  file_url: z.string(), // URL for file uploads; "voice-input" sentinel for voice entries
   file_name: z.string(),
   invoice_number: z.string().nullable(),
   invoice_date: z.string().nullable(),

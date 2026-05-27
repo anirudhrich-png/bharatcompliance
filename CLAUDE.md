@@ -387,7 +387,7 @@ const STANDARD_GST_DATES = [
 - [x] Compliance calendar (`/reminders`, auto-populates GSTR-1/3B/2B dates, mark-complete, overdue highlighting)
 
 ### ⬜ Phase 3 — Growth Features
-- [ ] Bhashini voice input
+- [x] Bhashini voice input — mic button + language selector on upload page, MediaRecorder ASR via `/api/bhashini/transcribe`, text→invoice via `/api/ai/voice-parse`, "Coming soon" tooltip when keys not configured
 - [ ] WhatsApp reminder bot
 - [ ] Razorpay subscription flow
 - [ ] Multi-client (CA plan)
