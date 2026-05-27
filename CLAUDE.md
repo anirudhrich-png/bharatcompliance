@@ -386,11 +386,21 @@ const STANDARD_GST_DATES = [
 - [x] Mismatch dashboard (`/gstr`, `GET /api/gstr/mismatches`, side-by-side comparison with ITC-loss summary)
 - [x] Compliance calendar (`/reminders`, auto-populates GSTR-1/3B/2B dates, mark-complete, overdue highlighting)
 
-### ⬜ Phase 3 — Growth Features
+### ✅ Phase 3 — Growth Features (PARTIAL)
 - [x] Bhashini voice input — mic button + language selector on upload page, MediaRecorder ASR via `/api/bhashini/transcribe`, text→invoice via `/api/ai/voice-parse`, "Coming soon" tooltip when keys not configured
 - [x] Razorpay subscription flow — `/settings` pricing page (Free/Vyapaar/CA), dynamic checkout.js load, `/api/payments/create-order` + `verify`, plan enforcement on `/api/gstr/reconcile` (403 for free), GSTR upgrade wall
 - [ ] WhatsApp reminder bot
 - [ ] Multi-client (CA plan)
+
+### ✅ Phase 4 — Mobile Responsiveness (COMPLETE)
+- [x] Sidebar hidden on mobile (`md:hidden`), bottom nav visible on mobile (`md:hidden`)
+- [x] Glassmorphism bottom nav with safe-area insets (`env(safe-area-inset-bottom)`) and 44px touch targets
+- [x] Header responsive padding, date hidden below 380px (`.hide-xs`), bell 44px touch target
+- [x] App layout: `pb-safe-nav md:pb-6 scroll-touch` for momentum scroll + safe area
+- [x] Invoice upload: "Take Photo" camera capture button (`md:hidden`, `accept="image/*" capture="environment"`)
+- [x] Invoice history: filter bar scrolls horizontally on mobile (no wrapping overflow)
+- [x] Reminders: header stacks vertically on mobile, form inputs full-width stacked
+- [x] Global: `overflow-x: hidden` on html/body, iOS font-size 16px (prevents zoom), utility classes (`.pb-safe-nav`, `.scroll-touch`, `.scroll-x-touch`, `.hide-xs`)
 
 ---
 

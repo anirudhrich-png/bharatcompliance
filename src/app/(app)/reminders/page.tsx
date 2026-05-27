@@ -162,7 +162,7 @@ export default function RemindersPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       {/* Page header */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="flex items-start gap-4">
           <div className="w-10 h-10 rounded-xl bg-saffron-100 flex items-center justify-center flex-shrink-0">
             <Calendar className="h-5 w-5 text-saffron-600" />
@@ -183,6 +183,7 @@ export default function RemindersPage() {
         <Button
           variant="saffron"
           size="sm"
+          className="self-start sm:self-auto flex-shrink-0"
           onClick={() => setShowAddForm((v) => !v)}
         >
           {showAddForm ? (

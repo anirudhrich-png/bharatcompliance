@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Home", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/invoice/upload", label: "Invoices", icon: FileText },
   { href: "/gstr", label: "GSTR", icon: RefreshCcw },
   { href: "/reminders", label: "Calendar", icon: Calendar },
@@ -18,8 +18,16 @@ export function MobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-[#0f172a] border-t border-white/10 safe-area-pb">
-      <div className="flex items-center justify-around h-16 px-2">
+    <nav
+      className="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-white/10"
+      style={{
+        background: "rgba(15, 23, 42, 0.92)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
+    >
+      <div className="flex items-stretch justify-around px-1" style={{ minHeight: "56px" }}>
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const isActive =
             href === "/dashboard"
@@ -30,23 +38,23 @@ export function MobileNav() {
             <Link
               key={href}
               href={href}
-              className="flex flex-col items-center justify-center gap-1 flex-1 h-full relative py-2"
+              className="flex flex-col items-center justify-center gap-1 flex-1 relative py-2 min-h-[44px]"
             >
               {isActive && (
                 <motion.span
                   layoutId="mobile-active"
-                  className="absolute inset-x-2 -top-px h-0.5 rounded-b-full bg-saffron-500"
+                  className="absolute inset-x-3 top-0 h-[2px] rounded-b-full bg-saffron-500"
                 />
               )}
               <Icon
                 className={cn(
-                  "h-5 w-5 transition-colors duration-150",
+                  "h-[20px] w-[20px] transition-colors duration-150",
                   isActive ? "text-saffron-400" : "text-slate-500"
                 )}
               />
               <span
                 className={cn(
-                  "text-[10px] font-medium transition-colors duration-150",
+                  "text-[10px] font-medium transition-colors duration-150 leading-none",
                   isActive ? "text-saffron-400" : "text-slate-500"
                 )}
               >

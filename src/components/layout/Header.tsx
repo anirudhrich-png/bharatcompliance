@@ -34,14 +34,14 @@ export function Header({ profile, title }: HeaderProps) {
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="flex items-center justify-between px-6 h-16 bg-background flex-shrink-0"
+      className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-0 sm:h-16 bg-background flex-shrink-0"
       style={{ borderBottom: "1px solid hsl(var(--border))" }}
     >
       {/* Left — greeting or title */}
-      <div>
+      <div className="flex-1 min-w-0">
         {title ? (
           <h1
-            className="text-lg font-bold text-foreground"
+            className="text-base sm:text-lg font-bold text-foreground truncate"
             style={{ fontFamily: "var(--font-display)" }}
           >
             {title}
@@ -49,13 +49,13 @@ export function Header({ profile, title }: HeaderProps) {
         ) : (
           <>
             <h1
-              className="text-[15px] font-semibold text-foreground leading-none"
+              className="text-[15px] sm:text-[15px] font-semibold text-foreground leading-snug"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {getGreeting()},{" "}
               <span className="text-saffron-600">{firstName}</span>
             </h1>
-            <p className="text-[12px] text-muted-foreground mt-1 leading-none">
+            <p className="text-[11px] sm:text-[12px] text-muted-foreground leading-snug hide-xs">
               {getFormattedDate()}
             </p>
           </>
@@ -63,7 +63,7 @@ export function Header({ profile, title }: HeaderProps) {
       </div>
 
       {/* Right — GSTIN chip + bell */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
         {profile?.gstin && (
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-muted/60 border border-border/60">
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
@@ -78,10 +78,13 @@ export function Header({ profile, title }: HeaderProps) {
           </div>
         )}
 
-        <button className="relative p-2 rounded-lg hover:bg-muted/70 transition-colors duration-150">
+        <button
+          className="relative p-2 rounded-lg hover:bg-muted/70 transition-colors duration-150 min-w-[44px] min-h-[44px] flex items-center justify-center"
+          aria-label="Notifications"
+        >
           <Bell className="h-[18px] w-[18px] text-muted-foreground" />
           <motion.span
-            className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-saffron-500"
+            className="absolute top-2 right-2 w-2 h-2 rounded-full bg-saffron-500"
             animate={{ scale: [1, 1.3, 1] }}
             transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
           />

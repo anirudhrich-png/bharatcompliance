@@ -82,6 +82,20 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Prevent horizontal overflow on all screens */
+  html, body {
+    overflow-x: hidden;
+  }
+
+  /* Prevent iOS Safari from zooming on input focus (needs min 16px) */
+  @supports (-webkit-touch-callout: none) {
+    input, input[type="text"], input[type="email"], input[type="password"],
+    input[type="date"], input[type="search"], input[type="tel"],
+    textarea, select {
+      font-size: 16px;
+    }
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
@@ -212,3 +226,26 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
+
+@layer utilities {
+  /* Safe area bottom padding for mobile nav */
+  .pb-safe-nav {
+    padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+  }
+  /* Touch momentum scrolling */
+  .scroll-touch {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+  /* Horizontal scroll with touch momentum */
+  .scroll-x-touch {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto;
+  }
+  /* Hide on screens <= 380px */
+  @media (max-width: 380px) {
+    .hide-xs {
+      display: none;
+    }
+  }
+}

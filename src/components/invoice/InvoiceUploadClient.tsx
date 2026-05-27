@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,6 +13,7 @@ import {
   Database,
   PartyPopper,
   Mic,
+  Camera,
 } from "lucide-react";
 import { UploadZone } from "@/components/invoice/UploadZone";
 import { ParseResult } from "@/components/invoice/ParseResult";
@@ -104,6 +105,7 @@ export function InvoiceUploadClient({ bhashiniEnabled }: Props) {
   const router = useRouter();
   const { toast } = useToast();
   const [state, setState] = useState<UploadState>({ step: "idle" });
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileAccepted = useCallback(
     async (file: File) => {
@@ -311,6 +313,28 @@ export function InvoiceUploadClient({ bhashiniEnabled }: Props) {
               uploadProgress={0}
               selectedFile={null}
               onClear={handleReset}
+            />
+
+            {/* Camera capture button — mobile only */}
+            <button
+              type="button"
+              onClick={() => cameraInputRef.current?.click()}
+              className="md:hidden w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-dashed border-saffron-200 text-saffron-600 text-sm font-medium bg-saffron-50/50 active:bg-saffron-100 transition-colors"
+            >
+              <Camera className="h-4 w-4" />
+              Take Photo
+            </button>
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) void handleFileAccepted(file);
+                e.target.value = "";
+              }}
             />
 
             {/* Divider */}

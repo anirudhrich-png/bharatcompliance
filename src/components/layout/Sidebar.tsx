@@ -54,7 +54,7 @@ export function Sidebar({ profile }: SidebarProps) {
       initial={{ x: -16, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.25, ease: "easeOut" }}
-      className="hidden lg:flex w-64 flex-col h-screen flex-shrink-0 bg-[#0f172a]"
+      className="hidden md:flex w-64 flex-col h-screen flex-shrink-0 bg-[#0f172a]"
       style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}
     >
       {/* ── Logo ── */}
