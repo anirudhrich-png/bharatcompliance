@@ -3,6 +3,12 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, Square, Loader2, Wand2, RotateCcw } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { ParsedInvoiceData } from "@/types";
 
 const SUPPORTED_LANGUAGES = [
@@ -56,7 +62,6 @@ export function VoiceInput({ bhashiniEnabled, onParsed, disabled }: VoiceInputPr
   const [lang, setLang] = useState<SupportedLang>("hi");
   const [voiceState, setVoiceState] = useState<VoiceState>({ phase: "idle" });
   const [textValue, setTextValue] = useState("");
-  const [showTooltip, setShowTooltip] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -223,58 +228,53 @@ export function VoiceInput({ bhashiniEnabled, onParsed, disabled }: VoiceInputPr
             ))}
           </select>
 
-          {/* Mic button */}
-          <div className="relative">
-            <motion.button
-              type="button"
-              onClick={handleMicClick}
-              onMouseEnter={() => !bhashiniEnabled && setShowTooltip(true)}
-              onMouseLeave={() => setShowTooltip(false)}
-              disabled={disabled || isProcessing || (!bhashiniEnabled)}
-              whileHover={{ scale: bhashiniEnabled && !isProcessing ? 1.05 : 1 }}
-              whileTap={{ scale: bhashiniEnabled && !isProcessing ? 0.95 : 1 }}
-              className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
-                isRecording
-                  ? "bg-red-500 text-white"
-                  : !bhashiniEnabled
-                  ? "bg-muted text-muted-foreground cursor-not-allowed"
-                  : "bg-saffron-500 text-white hover:bg-saffron-600"
-              }`}
-            >
-              {isRecording && (
-                <motion.span
-                  className="absolute inset-0 rounded-full bg-red-400"
-                  animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                />
-              )}
-              {isRecording ? (
-                <Square className="h-3.5 w-3.5 fill-current" />
-              ) : !bhashiniEnabled ? (
-                <MicOff className="h-3.5 w-3.5" />
-              ) : (
-                <Mic className="h-3.5 w-3.5" />
-              )}
-            </motion.button>
-
-            {/* Tooltip for disabled state */}
-            <AnimatePresence>
-              {showTooltip && !bhashiniEnabled && (
-                <motion.div
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  className="absolute right-0 top-full mt-2 z-50 w-48 rounded-lg bg-popover border shadow-md px-3 py-2"
-                >
-                  <p className="text-xs font-medium text-foreground">Voice input — Coming soon</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Available on the Vyapaar plan. Type your description below in the meantime.
+          {/* Mic button — wrapped in Tooltip so hover works even when button is disabled */}
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {/* span preserves pointer events when inner button is disabled */}
+                <span className="inline-flex">
+                  <motion.button
+                    type="button"
+                    onClick={handleMicClick}
+                    disabled={disabled || isProcessing || !bhashiniEnabled}
+                    whileHover={{ scale: bhashiniEnabled && !isProcessing ? 1.05 : 1 }}
+                    whileTap={{ scale: bhashiniEnabled && !isProcessing ? 0.95 : 1 }}
+                    className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-colors ${
+                      isRecording
+                        ? "bg-red-500 text-white"
+                        : !bhashiniEnabled
+                        ? "bg-muted text-muted-foreground cursor-not-allowed"
+                        : "bg-saffron-500 text-white hover:bg-saffron-600"
+                    }`}
+                  >
+                    {isRecording && (
+                      <motion.span
+                        className="absolute inset-0 rounded-full bg-red-400"
+                        animate={{ scale: [1, 1.5, 1], opacity: [0.6, 0, 0.6] }}
+                        transition={{ repeat: Infinity, duration: 1.5 }}
+                      />
+                    )}
+                    {isRecording ? (
+                      <Square className="h-3.5 w-3.5 fill-current" />
+                    ) : !bhashiniEnabled ? (
+                      <MicOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Mic className="h-3.5 w-3.5" />
+                    )}
+                  </motion.button>
+                </span>
+              </TooltipTrigger>
+              {!bhashiniEnabled && (
+                <TooltipContent side="top" align="end">
+                  <p className="font-medium">Voice input coming soon</p>
+                  <p className="text-muted-foreground mt-0.5">
+                    Available on Vyapaar plan. Type your description below.
                   </p>
-                  <div className="absolute -top-1.5 right-3 w-3 h-3 rotate-45 bg-popover border-t border-l" />
-                </motion.div>
+                </TooltipContent>
               )}
-            </AnimatePresence>
-          </div>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
