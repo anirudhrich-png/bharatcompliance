@@ -367,7 +367,7 @@ const STANDARD_GST_DATES = [
 - [x] Dashboard shell (sidebar + header) — dark nav, layoutId indicator, mobile bottom nav, page transitions
 - [x] Invoice upload page — step indicator, AI parse, save flow, PartyPopper success state
 - [x] Claude API invoice parser — parse-invoice route, `claude-sonnet-4-20250514`, full GST extraction
-- [ ] Invoice list + detail view (`/invoice/history` page UI not yet built; GET API exists)
+- [x] Invoice list + detail view (`/invoice/history` — searchable/filterable table, expandable rows, delete, CSV export)
 
 ### ✅ Phase 1.5 — Visual Overhaul (COMPLETE)
 - [x] Premium Indian fintech aesthetic (Zerodha × Linear × Razorpay style)
@@ -380,7 +380,7 @@ const STANDARD_GST_DATES = [
 - [x] TypeScript strict — 0 type errors
 
 ### ✅ Phase 2 — Core GST Features (COMPLETE)
-- [ ] Invoice list + detail view (`/invoice/history`) — GET API exists, page UI not yet built
+- [x] Invoice list + detail view (`/invoice/history`) — searchable/filterable table, expandable rows, delete, CSV export
 - [x] GSTR-2B upload + parsing (`POST /api/gstr/upload`, parses B2B entries from GST portal JSON)
 - [x] Reconciliation algorithm (`POST /api/gstr/reconcile`, matches on GSTIN+invoice_number, flags amount/date discrepancies)
 - [x] Mismatch dashboard (`/gstr`, `GET /api/gstr/mismatches`, side-by-side comparison with ITC-loss summary)
