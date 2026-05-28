@@ -1,15 +1,27 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Trash2, Calendar, AlertTriangle, Clock } from "lucide-react";
+import {
+  CheckCircle2,
+  Trash2,
+  Calendar,
+  AlertTriangle,
+  Clock,
+  MessageCircle,
+  Lock,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ComplianceDate, FilingType } from "@/types";
+import type { ComplianceDate, FilingType, SubscriptionPlan } from "@/types";
 
 interface ComplianceCalendarProps {
   dates: ComplianceDate[];
   onMarkComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onSendWhatsApp: (id: string) => Promise<void>;
+  userPlan: SubscriptionPlan;
+  userPhone: string | null;
 }
 
 const FILING_TYPE_CONFIG: Record<
@@ -92,10 +104,25 @@ interface DateCardProps {
   date: ComplianceDate;
   onMarkComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onSendWhatsApp: (id: string) => Promise<void>;
+  isPro: boolean;
+  userPhone: string | null;
+  isSent: boolean;
   index: number;
 }
 
-function DateCard({ date, onMarkComplete, onDelete, index }: DateCardProps) {
+function DateCard({
+  date,
+  onMarkComplete,
+  onDelete,
+  onSendWhatsApp,
+  isPro,
+  userPhone,
+  isSent,
+  index,
+}: DateCardProps) {
+  const [sending, setSending] = useState(false);
+
   const days = daysUntil(date.due_date);
   const filing = FILING_TYPE_CONFIG[date.filing_type] ?? FILING_TYPE_CONFIG.custom;
   const isOverdue = date.status === "overdue" || (date.status === "pending" && days < 0);
@@ -107,6 +134,19 @@ function DateCard({ date, onMarkComplete, onDelete, index }: DateCardProps) {
     month: "short",
     year: "numeric",
   });
+
+  const handleSend = async () => {
+    setSending(true);
+    try {
+      await onSendWhatsApp(date.id);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  // Determine WhatsApp button state
+  const showWhatsApp = !isCompleted;
+  const canSend = isPro && !!userPhone;
 
   return (
     <motion.div
@@ -136,7 +176,6 @@ function DateCard({ date, onMarkComplete, onDelete, index }: DateCardProps) {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              {/* Filing type badge */}
               <span
                 className={cn(
                   "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold",
@@ -148,7 +187,6 @@ function DateCard({ date, onMarkComplete, onDelete, index }: DateCardProps) {
                 {filing.label}
               </span>
 
-              {/* Status badge */}
               {isCompleted && (
                 <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700">
                   <CheckCircle2 className="h-3 w-3" />
@@ -198,6 +236,56 @@ function DateCard({ date, onMarkComplete, onDelete, index }: DateCardProps) {
 
           {/* Actions */}
           <div className="flex items-center gap-1 flex-shrink-0">
+            {/* WhatsApp send button */}
+            {showWhatsApp && (
+              <>
+                {canSend ? (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-7 w-7",
+                      isSent
+                        ? "text-emerald-600 hover:bg-emerald-50"
+                        : "text-green-600 hover:bg-green-50 hover:text-green-700"
+                    )}
+                    onClick={handleSend}
+                    disabled={sending || isSent}
+                    title={isSent ? "Reminder sent" : "Send WhatsApp reminder"}
+                  >
+                    {isSent ? (
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    ) : sending ? (
+                      <span className="h-3.5 w-3.5 border-2 border-green-500 border-t-transparent rounded-full animate-spin block" />
+                    ) : (
+                      <MessageCircle className="h-3.5 w-3.5" />
+                    )}
+                  </Button>
+                ) : (
+                  <div className="relative group">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground/40 cursor-not-allowed"
+                      disabled
+                      title={
+                        !isPro
+                          ? "Upgrade to Pro for WhatsApp reminders"
+                          : "Add phone number in Settings"
+                      }
+                    >
+                      <Lock className="h-3 w-3" />
+                    </Button>
+                    <div className="absolute right-0 top-8 z-20 hidden group-hover:block w-44 rounded-lg bg-popover border shadow-lg p-2.5 text-[11px] text-muted-foreground leading-relaxed">
+                      {!isPro
+                        ? "Upgrade to Vyapaar Pro for WhatsApp reminders"
+                        : "Add your phone number in Settings"}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
             {!isCompleted && (
               <Button
                 variant="ghost"
@@ -229,7 +317,22 @@ export function ComplianceCalendar({
   dates,
   onMarkComplete,
   onDelete,
+  onSendWhatsApp,
+  userPlan,
+  userPhone,
 }: ComplianceCalendarProps) {
+  // Track which IDs have been sent (seed from reminder_sent field)
+  const [sentIds, setSentIds] = useState<Set<string>>(
+    () => new Set(dates.filter((d) => d.reminder_sent).map((d) => d.id))
+  );
+
+  const isPro = userPlan === "pro" || userPlan === "ca";
+
+  const handleSendWhatsApp = async (id: string) => {
+    await onSendWhatsApp(id);
+    setSentIds((prev) => new Set(prev).add(id));
+  };
+
   if (dates.length === 0) {
     return (
       <motion.div
@@ -253,7 +356,7 @@ export function ComplianceCalendar({
   // Group by month
   const grouped = new Map<string, ComplianceDate[]>();
   for (const date of dates) {
-    const monthKey = date.due_date.slice(0, 7); // YYYY-MM
+    const monthKey = date.due_date.slice(0, 7);
     const existing = grouped.get(monthKey);
     if (existing) {
       existing.push(date);
@@ -275,9 +378,7 @@ export function ComplianceCalendar({
 
         return (
           <div key={monthKey}>
-            <p
-              className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3 px-1"
-            >
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-3 px-1">
               {monthLabel}
             </p>
             <div className="space-y-2">
@@ -289,6 +390,10 @@ export function ComplianceCalendar({
                     date={date}
                     onMarkComplete={onMarkComplete}
                     onDelete={onDelete}
+                    onSendWhatsApp={handleSendWhatsApp}
+                    isPro={isPro}
+                    userPhone={userPhone}
+                    isSent={sentIds.has(date.id)}
                     index={idx}
                   />
                 );

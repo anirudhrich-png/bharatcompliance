@@ -26,6 +26,7 @@ flags GST mismatches → sends WhatsApp reminders before deadlines.
 | Database | Supabase (PostgreSQL) | Auth + DB + Storage in one |
 | AI Engine | Anthropic Claude API (claude-sonnet-4-20250514) | Invoice parsing, GST logic |
 | Payments | Razorpay | Indian payment standard |
+| WhatsApp | Twilio | WhatsApp Business API for reminders |
 | Language | Bhashini API | Regional language voice/text |
 | State | Zustand | Lightweight global state |
 | Forms | React Hook Form + Zod | Validated forms |
@@ -281,6 +282,41 @@ Important rules:
 
 ---
 
+## Twilio WhatsApp Integration
+
+### Environment Variables
+```
+TWILIO_ACCOUNT_SID=...
+TWILIO_AUTH_TOKEN=...
+TWILIO_WHATSAPP_NUMBER=+14155238886   # Sandbox or approved sender
+CRON_SECRET=<openssl rand -hex 32>   # Add to Vercel env vars too
+```
+
+### Wrapper
+`src/lib/twilio/index.ts` — `sendWhatsAppMessage(phone, message)` and message formatters.
+
+### API Routes
+```
+POST /api/reminders/send-whatsapp   → { reminderId } or { test: true }
+                                       Pro plan required. Marks reminder_sent=true.
+POST /api/reminders/send-all-due    → Protected by Authorization: Bearer CRON_SECRET
+                                       Finds pending reminders due ≤3 days. Sends to Pro users with phone.
+GET  /api/profile                   → Current user profile
+PATCH /api/profile                  → Update profile fields (phone, name, etc.)
+```
+
+### Vercel Cron Setup
+`vercel.json` is configured to call `/api/reminders/send-all-due` daily at 09:00 UTC (14:30 IST).
+Add `CRON_SECRET` to Vercel Project → Settings → Environment Variables.
+Vercel automatically sends `Authorization: Bearer <CRON_SECRET>` with cron requests.
+
+### Phone Number Format
+- Stored in DB as 10-digit Indian number (e.g. `9876543210`)
+- Twilio receives as `whatsapp:+919876543210`
+- Displayed to users as `+91 9876543210`
+
+---
+
 ## Bhashini API Integration
 
 ### Endpoints
@@ -389,7 +425,7 @@ const STANDARD_GST_DATES = [
 ### ✅ Phase 3 — Growth Features (PARTIAL)
 - [x] Bhashini voice input — mic button + language selector on upload page, MediaRecorder ASR via `/api/bhashini/transcribe`, text→invoice via `/api/ai/voice-parse`, "Coming soon" tooltip when keys not configured
 - [x] Razorpay subscription flow — `/settings` pricing page (Free/Vyapaar/CA), dynamic checkout.js load, `/api/payments/create-order` + `verify`, plan enforcement on `/api/gstr/reconcile` (403 for free), GSTR upgrade wall
-- [ ] WhatsApp reminder bot
+- [x] WhatsApp reminder bot — Twilio integration, per-reminder send button (Pro only), locked icon for free, cron job sends all due-in-3-days reminders daily at 9 AM UTC, test message from Settings
 - [ ] Multi-client (CA plan)
 
 ### ✅ Phase 4 — Mobile Responsiveness (COMPLETE)

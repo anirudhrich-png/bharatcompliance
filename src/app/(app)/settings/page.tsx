@@ -3,6 +3,7 @@ import { Settings, User, CreditCard, Building2, Shield } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PricingPlans } from "@/components/payments/PricingPlans";
 import { SignOutButton } from "@/components/settings/SignOutButton";
+import { AccountSettingsClient } from "@/components/settings/AccountSettingsClient";
 import type { Profile } from "@/types";
 
 function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
@@ -66,7 +67,13 @@ export default async function SettingsPage() {
 
         <InfoRow label="Full name" value={profile?.full_name} />
         <InfoRow label="Email" value={user.email} />
-        <InfoRow label="Phone" value={profile?.phone} />
+
+        {/* Editable phone field + WhatsApp test */}
+        <AccountSettingsClient
+          initialPhone={profile?.phone ?? null}
+          userPlan={profile?.plan ?? "free"}
+          fullName={profile?.full_name ?? ""}
+        />
 
         <div className="flex items-center justify-between py-3 border-b last:border-0">
           <span className="text-sm text-muted-foreground">Current plan</span>
