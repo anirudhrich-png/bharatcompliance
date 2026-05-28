@@ -4,6 +4,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PricingPlans } from "@/components/payments/PricingPlans";
 import { SignOutButton } from "@/components/settings/SignOutButton";
 import { AccountSettingsClient } from "@/components/settings/AccountSettingsClient";
+import { TallyGuide } from "@/components/settings/TallyGuide";
 import type { Profile } from "@/types";
 
 function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
@@ -146,6 +147,11 @@ export default async function SettingsPage() {
           Secured by Razorpay · 256-bit SSL · All major UPI, cards, net banking accepted
         </p>
       </section>
+
+      {/* Tally Integration Guide — CA / Pro feature */}
+      {(profile?.plan === "pro" || profile?.plan === "ca") && (
+        <TallyGuide />
+      )}
 
       {/* Sign out */}
       <section className="rounded-2xl border border-red-100 bg-card p-6">

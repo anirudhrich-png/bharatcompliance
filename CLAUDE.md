@@ -305,6 +305,40 @@ GET  /api/profile                   → Current user profile
 PATCH /api/profile                  → Update profile fields (phone, name, etc.)
 ```
 
+## Tally XML Export
+
+### Library — `src/lib/tally/index.ts`
+- `generateTallyXML(invoices)` → TallyPrime XML string (Purchase vouchers)
+  - Date format: YYYYMMDD, Amounts: 2 d.p., XML-escaped vendor names
+  - Debit: `ISDEEMEDPOSITIVE=Yes`, negative AMOUNT (purchase + tax inputs)
+  - Credit: `ISDEEMEDPOSITIVE=No`, positive AMOUNT (party/vendor = total)
+  - Voucher must balance: sum of all AMOUNT = 0
+  - Skips invoices with null `taxable_amount` or null `invoice_date`
+- `generateInvoiceCSV(invoices)` → UTF-8 BOM CSV (Excel-safe for Hindi text)
+
+### Export API routes
+```
+GET /api/invoice/export/tally   → Pro/CA plan; query: dateFrom, dateTo, status
+GET /api/invoice/export/csv     → All plans;   query: dateFrom, dateTo, status
+GET /api/gstr/export            → Pro/CA plan; downloads all mismatch entries
+```
+All export routes fetch the full dataset (no pagination limit).
+
+### Plan enforcement (export)
+| Feature | Free | Pro | CA |
+|---|---|---|---|
+| Invoice CSV export | ✅ | ✅ | ✅ |
+| Invoice Tally XML | ❌ | ✅ | ✅ |
+| GSTR mismatch CSV | ❌ | ✅ | ✅ |
+
+### Tally ledger prerequisites
+Before importing XML into Tally, these ledgers must exist:
+- `Purchases @5%` / `@12%` / `@18%` / `@28%` (under Purchases)
+- `CGST Input`, `SGST Input`, `IGST Input` (under Duties & Taxes → GST)
+- One sundry creditor ledger per vendor (under Sundry Creditors)
+
+---
+
 ### Vercel Cron Setup
 `vercel.json` is configured to call `/api/reminders/send-all-due` daily at 09:00 UTC (14:30 IST).
 Add `CRON_SECRET` to Vercel Project → Settings → Environment Variables.
@@ -426,6 +460,7 @@ const STANDARD_GST_DATES = [
 - [x] Bhashini voice input — mic button + language selector on upload page, MediaRecorder ASR via `/api/bhashini/transcribe`, text→invoice via `/api/ai/voice-parse`, "Coming soon" tooltip when keys not configured
 - [x] Razorpay subscription flow — `/settings` pricing page (Free/Vyapaar/CA), dynamic checkout.js load, `/api/payments/create-order` + `verify`, plan enforcement on `/api/gstr/reconcile` (403 for free), GSTR upgrade wall
 - [x] WhatsApp reminder bot — Twilio integration, per-reminder send button (Pro only), locked icon for free, cron job sends all due-in-3-days reminders daily at 9 AM UTC, test message from Settings
+- [x] Tally XML export — `src/lib/tally/index.ts` generates TallyPrime-compatible Purchase voucher XML; Export dropdown on Invoice History (CSV all plans, Tally XML Pro+CA); GSTR mismatch CSV export; Tally Integration Guide in Settings
 - [ ] Multi-client (CA plan)
 
 ### ✅ Phase 4 — Mobile Responsiveness (COMPLETE)

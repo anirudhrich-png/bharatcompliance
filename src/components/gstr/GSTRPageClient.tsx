@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Upload, RefreshCw, ChevronDown, ChevronUp, Lock, Zap } from "lucide-react";
+import { Upload, RefreshCw, ChevronDown, ChevronUp, Lock, Zap, Download, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { GSTRUploadZone } from "./GSTRUploadZone";
@@ -38,6 +38,7 @@ export function GSTRPageClient({
   userPlan,
 }: GSTRPageClientProps) {
   const isPaidPlan = userPlan === "pro" || userPlan === "ca";
+  const [exportingCSV, setExportingCSV] = useState(false);
   const [entries, setEntries] = useState<GSTR2BEntry[]>(initialEntries);
   const [invoiceMap, setInvoiceMap] =
     useState<Record<string, Invoice>>(initialInvoiceMap);
@@ -195,9 +196,68 @@ export function GSTRPageClient({
         summary={summary}
       />
 
-      {/* Reconcile shortcut if data exists */}
+      {/* Export mismatches + reconcile shortcut */}
       {entries.length > 0 && (
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          {/* Export mismatches CSV */}
+          <button
+            onClick={async () => {
+              if (!isPaidPlan) {
+                toast({
+                  title: "Pro plan required",
+                  description: "Upgrade to export mismatch data.",
+                  variant: "destructive",
+                });
+                return;
+              }
+              setExportingCSV(true);
+              try {
+                const res = await fetch("/api/gstr/export", {
+                  credentials: "same-origin",
+                });
+                if (!res.ok) {
+                  const j = (await res.json().catch(() => ({}))) as { error?: string };
+                  throw new Error(j.error ?? "Export failed");
+                }
+                const blob = await res.blob();
+                const disposition = res.headers.get("content-disposition") ?? "";
+                const match = disposition.match(/filename="([^"]+)"/);
+                const filename = match?.[1] ?? "gstr-mismatches.csv";
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                toast({
+                  title: "Exported",
+                  description: "GSTR mismatch CSV downloaded — share with your CA for review.",
+                  variant: "success",
+                });
+              } catch (err) {
+                toast({
+                  title: "Export failed",
+                  description: err instanceof Error ? err.message : "Something went wrong",
+                  variant: "destructive",
+                });
+              } finally {
+                setExportingCSV(false);
+              }
+            }}
+            disabled={exportingCSV}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+          >
+            {exportingCSV ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            Export Mismatches
+          </button>
+
+          <div className="flex items-center gap-3">
           {!isPaidPlan && (
             <Link
               href="/settings#billing"
@@ -223,6 +283,7 @@ export function GSTRPageClient({
             )}
             {isPaidPlan ? "Refresh data" : "Reconcile (Pro)"}
           </Button>
+          </div>
         </div>
       )}
     </div>
