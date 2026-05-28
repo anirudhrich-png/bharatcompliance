@@ -172,8 +172,113 @@ export function MismatchTable({
         </Button>
       </div>
 
-      {/* Entries list */}
-      <div className="rounded-xl border bg-card overflow-hidden">
+      {/* ── Mobile: individual cards ── */}
+      <div className="sm:hidden space-y-2">
+        <p
+          className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-0.5"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
+          GSTR-2B Entries
+        </p>
+        {entries.map((entry, i) => {
+          const config =
+            STATUS_CONFIG[entry.match_status] ?? STATUS_CONFIG.unmatched;
+          const StatusIcon = config.icon;
+          const matchedInvoice = entry.matched_invoice_id
+            ? invoiceMap[entry.matched_invoice_id]
+            : null;
+          const gstrTax =
+            (entry.igst ?? 0) + (entry.cgst ?? 0) + (entry.sgst ?? 0);
+          const invTax = matchedInvoice
+            ? (matchedInvoice.igst ?? 0) +
+              (matchedInvoice.cgst ?? 0) +
+              (matchedInvoice.sgst ?? 0)
+            : null;
+          const diff = invTax !== null ? Math.abs(gstrTax - invTax) : null;
+
+          return (
+            <motion.div
+              key={entry.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.03 }}
+              className="rounded-xl border bg-card card-warm p-4"
+            >
+              {/* Invoice number + status badge */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <StatusIcon
+                    className={cn("h-4 w-4 flex-shrink-0", config.iconColor)}
+                  />
+                  <span className="text-[13px] font-semibold text-foreground truncate">
+                    {entry.invoice_number}
+                  </span>
+                </div>
+                <span
+                  className={cn(
+                    "inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-semibold flex-shrink-0",
+                    config.className
+                  )}
+                >
+                  {config.label}
+                </span>
+              </div>
+
+              {/* Supplier GSTIN */}
+              <p
+                className="text-[11px] text-muted-foreground tracking-wider mb-3"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {formatGSTIN(entry.supplier_gstin)}
+              </p>
+
+              {/* Tax figures: 2-col grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                    GSTR-2B Tax
+                  </p>
+                  <p className="text-[13px] font-semibold text-foreground tabular-nums">
+                    {formatCurrency(gstrTax)}
+                  </p>
+                </div>
+
+                {diff !== null && diff > 1 ? (
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                      Difference
+                    </p>
+                    <p className="text-[13px] font-semibold text-red-600 tabular-nums">
+                      {formatCurrency(diff)}
+                    </p>
+                  </div>
+                ) : !matchedInvoice && entry.match_status !== "matched" ? (
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                      ITC at Risk
+                    </p>
+                    <p className="text-[13px] font-semibold text-amber-600 tabular-nums">
+                      {formatCurrency(gstrTax)}
+                    </p>
+                  </div>
+                ) : invTax !== null ? (
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                      Invoice Tax
+                    </p>
+                    <p className="text-[13px] font-semibold text-foreground tabular-nums">
+                      {formatCurrency(invTax)}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* ── Desktop: divide-y list in a single container ── */}
+      <div className="hidden sm:block rounded-xl border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b bg-muted/30">
           <p
             className="text-[13px] font-semibold text-foreground"
@@ -183,15 +288,14 @@ export function MismatchTable({
           </p>
         </div>
 
-        <div className="divide-y">
+        <div className="divide-y overflow-x-auto">
           {entries.map((entry, i) => {
             const config =
               STATUS_CONFIG[entry.match_status] ?? STATUS_CONFIG.unmatched;
             const StatusIcon = config.icon;
-            const matchedInvoice =
-              entry.matched_invoice_id
-                ? invoiceMap[entry.matched_invoice_id]
-                : null;
+            const matchedInvoice = entry.matched_invoice_id
+              ? invoiceMap[entry.matched_invoice_id]
+              : null;
 
             const gstrTax =
               (entry.igst ?? 0) + (entry.cgst ?? 0) + (entry.sgst ?? 0);
@@ -245,7 +349,6 @@ export function MismatchTable({
                       )}
                     </div>
 
-                    {/* Amount comparison */}
                     <div className="mt-2 flex flex-wrap gap-3">
                       <div>
                         <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">

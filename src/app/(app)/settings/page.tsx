@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Settings, User, CreditCard, Building2, Shield } from "lucide-react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PricingPlans } from "@/components/payments/PricingPlans";
+import { SignOutButton } from "@/components/settings/SignOutButton";
 import type { Profile } from "@/types";
 
 function InfoRow({ label, value }: { label: string; value: string | null | undefined }) {
@@ -137,6 +138,19 @@ export default async function SettingsPage() {
         <p className="text-[11px] text-muted-foreground text-center pt-2">
           Secured by Razorpay · 256-bit SSL · All major UPI, cards, net banking accepted
         </p>
+      </section>
+
+      {/* Sign out */}
+      <section className="rounded-2xl border border-red-100 bg-card p-6">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold text-foreground">Sign out</h2>
+            <p className="text-[13px] text-muted-foreground mt-0.5">
+              Sign out of your BharatCompliance account on this device.
+            </p>
+          </div>
+          <SignOutButton />
+        </div>
       </section>
     </div>
   );
