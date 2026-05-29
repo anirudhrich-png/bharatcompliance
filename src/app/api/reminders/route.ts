@@ -72,29 +72,40 @@ export async function GET(
       );
     }
 
-    // Check for existing records
-    const { data: existing, error: fetchError } = await supabase
-      .from("compliance_dates")
-      .select("*")
-      .eq("user_id", user.id);
+    // Check for existing records in the current month or later only.
+    // Using the all-time count caused two bugs:
+    //   (a) old months' dates prevented new months from ever being seeded
+    //   (b) concurrent requests could race past the check and double-insert
+    const now = new Date();
+    const startOfMonth = `${now.getFullYear()}-${padTwo(now.getMonth() + 1)}-01`;
 
-    if (fetchError) {
+    const { count, error: countError } = await supabase
+      .from("compliance_dates")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", user.id)
+      .gte("due_date", startOfMonth);
+
+    if (countError) {
       return NextResponse.json(
-        { success: false, error: fetchError.message },
+        { success: false, error: countError.message },
         { status: 500 }
       );
     }
 
-    // Auto-create standard dates if none exist
-    if (!existing || existing.length === 0) {
+    // Auto-seed standard GST dates when none exist for this month+.
+    // Upsert with ignoreDuplicates guards against any remaining race conditions.
+    if (count === 0) {
       const defaults = buildComplianceDates(user.id);
-      const { error: insertError } = await supabase
+      const { error: upsertError } = await supabase
         .from("compliance_dates")
-        .insert(defaults);
+        .upsert(defaults, {
+          onConflict: "user_id,filing_type,due_date",
+          ignoreDuplicates: true,
+        });
 
-      if (insertError) {
+      if (upsertError) {
         return NextResponse.json(
-          { success: false, error: insertError.message },
+          { success: false, error: upsertError.message },
           { status: 500 }
         );
       }
