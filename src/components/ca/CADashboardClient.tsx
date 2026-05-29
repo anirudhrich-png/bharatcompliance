@@ -364,12 +364,9 @@ function ClientCard({
           </p>
         </div>
 
-        <div className="rounded-lg bg-muted/40 p-2.5 flex items-center gap-2">
-          <CircularProgress value={client.complianceScore} size={36} strokeWidth={4} />
-          <div>
-            <p className="text-[10px] text-muted-foreground">Score</p>
-            <p className="font-display text-sm font-bold text-foreground">{client.complianceScore}</p>
-          </div>
+        <div className="rounded-lg bg-muted/40 p-2.5 flex flex-col items-center justify-center gap-1">
+          <CircularProgress value={client.complianceScore} size={48} strokeWidth={3} />
+          <p className="text-[10px] text-muted-foreground">Score</p>
         </div>
       </div>
 

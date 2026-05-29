@@ -62,7 +62,9 @@ export function CircularProgress({
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <motion.span
-          className="text-2xl font-bold tabular-nums"
+          className={`font-bold tabular-nums leading-none ${
+            size < 50 ? "text-[11px]" : size < 80 ? "text-base" : "text-2xl"
+          }`}
           style={{ color, fontFamily: "var(--font-display)" }}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
