@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import { ArrowRight, Users, AlertCircle } from "lucide-react";
 import type { Profile } from "@/types";
 
 export const metadata = { title: "Accept Invitation — BharatCompliance" };
+
+type InviteError = "not_found" | "expired" | "already_used";
 
 interface InviteData {
   caBusinessName: string;
@@ -13,34 +14,88 @@ interface InviteData {
   token: string;
 }
 
-async function getInviteData(token: string): Promise<InviteData | null> {
-  const supabase = await createSupabaseServerClient();
+interface DebugInfo {
+  tokenReceived: string;
+  serviceRoleKeyDefined: boolean;
+  supabaseUrlDefined: boolean;
+  queryError: string | null;
+  inviteFound: boolean;
+  inviteStatus: string | null;
+  inviteExpiry: string | null;
+  isExpired: boolean | null;
+}
 
-  const { data: invite } = await supabase
+type InviteResult =
+  | { ok: true; data: InviteData }
+  | { ok: false; reason: InviteError; debug: DebugInfo };
+
+async function getInviteData(token: string): Promise<InviteResult> {
+  console.log("[invite] looking up token:", token);
+
+  const debug: DebugInfo = {
+    tokenReceived: token,
+    serviceRoleKeyDefined: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    supabaseUrlDefined: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    queryError: null,
+    inviteFound: false,
+    inviteStatus: null,
+    inviteExpiry: null,
+    isExpired: null,
+  };
+
+  const admin = createSupabaseAdminClient();
+
+  const { data: invite, error } = await admin
     .from("ca_invites")
     .select("ca_user_id, status, expires_at")
     .eq("token", token)
     .single<{ ca_user_id: string; status: string; expires_at: string }>();
 
-  if (!invite || invite.status !== "pending" || new Date(invite.expires_at) < new Date()) {
-    return null;
+  debug.queryError = error?.message ?? null;
+  debug.inviteFound = !!invite;
+  debug.inviteStatus = invite?.status ?? null;
+  debug.inviteExpiry = invite?.expires_at ?? null;
+  debug.isExpired = invite ? new Date(invite.expires_at) < new Date() : null;
+
+  console.log("[invite] query result:", { invite, error: error?.message, debug });
+
+  if (!invite) {
+    return { ok: false, reason: "not_found", debug };
   }
 
-  const { data: caProfile } = await supabase
+  if (invite.status === "accepted") {
+    return { ok: false, reason: "already_used", debug };
+  }
+
+  if (invite.status !== "pending" || new Date(invite.expires_at) < new Date()) {
+    return { ok: false, reason: "expired", debug };
+  }
+
+  const { data: caProfile } = await admin
     .from("profiles")
     .select("business_name")
     .eq("id", invite.ca_user_id)
     .single<Pick<Profile, "business_name">>();
 
-  const admin = createSupabaseAdminClient();
   const { data: caAuthUser } = await admin.auth.admin.getUserById(invite.ca_user_id);
 
+  console.log("[invite] CA profile:", caProfile?.business_name);
+
   return {
-    caBusinessName: caProfile?.business_name ?? "Your CA",
-    caEmail: caAuthUser.user?.email ?? "",
-    token,
+    ok: true,
+    data: {
+      caBusinessName: caProfile?.business_name ?? "Your CA",
+      caEmail: caAuthUser.user?.email ?? "",
+      token,
+    },
   };
 }
+
+const INVITE_ERROR_MESSAGES: Record<string, string> = {
+  not_found: "This invite link doesn't exist. Check the link and try again.",
+  expired: "This invite link has expired. Ask your CA to send a new one.",
+  already_used: "This invite has already been accepted.",
+};
 
 export default async function InvitePage({
   searchParams,
@@ -50,14 +105,35 @@ export default async function InvitePage({
   const { token } = await searchParams;
 
   if (!token) {
-    return <InvalidInvite message="No invite token provided." />;
+    return (
+      <InvalidInvite
+        message="No invite token provided."
+        debug={{
+          tokenReceived: "(none)",
+          serviceRoleKeyDefined: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+          supabaseUrlDefined: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+          queryError: null,
+          inviteFound: false,
+          inviteStatus: null,
+          inviteExpiry: null,
+          isExpired: null,
+        }}
+      />
+    );
   }
 
-  const inviteData = await getInviteData(token);
+  const result = await getInviteData(token);
 
-  if (!inviteData) {
-    return <InvalidInvite message="This invite link is invalid, has expired, or has already been used." />;
+  if (!result.ok) {
+    return (
+      <InvalidInvite
+        message={INVITE_ERROR_MESSAGES[result.reason] ?? "Invalid invite link."}
+        debug={result.debug}
+      />
+    );
   }
+
+  const inviteData = result.data;
 
   // Check if user is logged in
   const supabase = await createSupabaseServerClient();
@@ -67,21 +143,35 @@ export default async function InvitePage({
 
   // If logged in, accept the invite server-side and redirect to dashboard
   if (user) {
-    // Prevent self-acceptance
-    const { data: caProfile } = await supabase
+    const admin = createSupabaseAdminClient();
+
+    const { data: caInvite } = await admin
       .from("ca_invites")
       .select("ca_user_id")
       .eq("token", token)
       .single<{ ca_user_id: string }>();
 
-    if (caProfile?.ca_user_id === user.id) {
-      return <InvalidInvite message="You cannot accept your own invite." />;
+    if (caInvite?.ca_user_id === user.id) {
+      return (
+        <InvalidInvite
+          message="You cannot accept your own invite."
+          debug={{
+            tokenReceived: token,
+            serviceRoleKeyDefined: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+            supabaseUrlDefined: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+            queryError: null,
+            inviteFound: true,
+            inviteStatus: "pending",
+            inviteExpiry: null,
+            isExpired: false,
+          }}
+        />
+      );
     }
 
-    // Accept the invite
-    await supabase.from("ca_clients").upsert(
+    await admin.from("ca_clients").upsert(
       {
-        ca_user_id: caProfile?.ca_user_id,
+        ca_user_id: caInvite?.ca_user_id,
         client_user_id: user.id,
         status: "active",
         accepted_at: new Date().toISOString(),
@@ -89,7 +179,7 @@ export default async function InvitePage({
       { onConflict: "ca_user_id,client_user_id" }
     );
 
-    await supabase.from("ca_invites").update({ status: "accepted" }).eq("token", token);
+    await admin.from("ca_invites").update({ status: "accepted" }).eq("token", token);
 
     redirect(`/dashboard?invite_accepted=1&ca=${encodeURIComponent(inviteData.caBusinessName)}`);
   }
@@ -115,12 +205,9 @@ export default async function InvitePage({
 
       <div className="w-full max-w-md pt-16">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
-          {/* Icon */}
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-saffron-50 border border-saffron-200">
             <Users className="h-7 w-7 text-saffron-500" />
           </div>
-
-          {/* Headline */}
           <h1 className="font-display text-2xl font-bold text-[#0f172a] mb-2">
             You&apos;ve been invited!
           </h1>
@@ -132,8 +219,6 @@ export default async function InvitePage({
             Once connected, your CA can view your invoices, compliance status, and help with
             GST reconciliation.
           </p>
-
-          {/* CTAs */}
           <div className="space-y-3">
             <Link
               href={`/register?callbackUrl=${callbackUrl}`}
@@ -149,7 +234,6 @@ export default async function InvitePage({
               Already have an account? Sign in
             </Link>
           </div>
-
           <p className="mt-6 text-xs text-slate-400">
             Invited by {inviteData.caEmail} · This link expires in 7 days
           </p>
@@ -159,21 +243,33 @@ export default async function InvitePage({
   );
 }
 
-function InvalidInvite({ message }: { message: string }) {
+function InvalidInvite({ message, debug }: { message: string; debug: DebugInfo }) {
   return (
     <div className="min-h-screen bg-[#fefce8] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
-          <AlertCircle className="h-6 w-6 text-red-500" />
+      <div className="w-full max-w-md space-y-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
+            <AlertCircle className="h-6 w-6 text-red-500" />
+          </div>
+          <h2 className="font-display text-xl font-bold text-[#0f172a] mb-2">Invalid invite</h2>
+          <p className="text-slate-500 mb-6">{message}</p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#f97316] px-6 py-3 text-sm font-semibold text-white hover:bg-orange-500 transition-all"
+          >
+            Go to homepage
+          </Link>
         </div>
-        <h2 className="font-display text-xl font-bold text-[#0f172a] mb-2">Invalid invite</h2>
-        <p className="text-slate-500 mb-6">{message}</p>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-xl bg-[#f97316] px-6 py-3 text-sm font-semibold text-white hover:bg-orange-500 transition-all"
-        >
-          Go to homepage
-        </Link>
+
+        {/* Debug panel — always visible, remove after fixing */}
+        <div className="rounded-xl border border-slate-300 bg-slate-900 p-4 text-left">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            Debug info (temporary)
+          </p>
+          <pre className="text-xs text-green-400 whitespace-pre-wrap break-all font-mono">
+            {JSON.stringify(debug, null, 2)}
+          </pre>
+        </div>
       </div>
     </div>
   );

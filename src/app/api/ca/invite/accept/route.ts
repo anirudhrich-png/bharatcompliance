@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseAdminClient } from "@/lib/supabase/server";
 import { caInviteAcceptSchema } from "@/lib/validations";
 import type { ApiResponse, Profile } from "@/types";
 
@@ -7,6 +7,7 @@ import type { ApiResponse, Profile } from "@/types";
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<{ caBusinessName: string }>>> {
+  // Auth check uses user's session (correct)
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -31,35 +32,40 @@ export async function POST(
 
   const { token } = parsed.data;
 
-  // Fetch the invite
-  const { data: invite } = await supabase
+  // All DB operations below use the admin client — RLS on ca_invites only allows
+  // the CA owner to read/write their rows, but the client user accepting the invite
+  // has a different uid. The token is the authorization here.
+  const admin = createSupabaseAdminClient();
+
+  const { data: invite, error } = await admin
     .from("ca_invites")
     .select("id, ca_user_id, status, expires_at, email")
     .eq("token", token)
     .single<{ id: string; ca_user_id: string; status: string; expires_at: string; email: string }>();
 
+  console.log("[accept] invite lookup:", { token, invite: invite?.id, error: error?.message });
+
   if (!invite) {
     return NextResponse.json(
-      { success: false, error: "Invalid invite link", code: "INVALID_TOKEN" },
+      { success: false, error: "Token not found", code: "NOT_FOUND" },
       { status: 404 }
     );
   }
 
-  if (invite.status !== "pending") {
+  if (invite.status === "accepted") {
     return NextResponse.json(
-      { success: false, error: "This invite has already been used", code: "ALREADY_USED" },
+      { success: false, error: "Invite already accepted", code: "ALREADY_USED" },
       { status: 410 }
     );
   }
 
-  if (new Date(invite.expires_at) < new Date()) {
+  if (invite.status !== "pending" || new Date(invite.expires_at) < new Date()) {
     return NextResponse.json(
-      { success: false, error: "This invite has expired", code: "TOKEN_EXPIRED" },
+      { success: false, error: "Invite expired", code: "EXPIRED" },
       { status: 410 }
     );
   }
 
-  // Prevent CA from accepting their own invite
   if (invite.ca_user_id === user.id) {
     return NextResponse.json(
       { success: false, error: "You cannot accept your own invite" },
@@ -67,8 +73,8 @@ export async function POST(
     );
   }
 
-  // Create ca_clients relationship (upsert handles duplicates)
-  const { error: clientError } = await supabase.from("ca_clients").upsert(
+  // Create ca_clients relationship — admin client bypasses RLS
+  const { error: clientError } = await admin.from("ca_clients").upsert(
     {
       ca_user_id: invite.ca_user_id,
       client_user_id: user.id,
@@ -80,20 +86,17 @@ export async function POST(
   );
 
   if (clientError) {
+    console.log("[accept] ca_clients upsert error:", clientError.message);
     return NextResponse.json(
       { success: false, error: clientError.message },
       { status: 500 }
     );
   }
 
-  // Mark invite accepted
-  await supabase
-    .from("ca_invites")
-    .update({ status: "accepted" })
-    .eq("id", invite.id);
+  // Mark invite accepted — admin client
+  await admin.from("ca_invites").update({ status: "accepted" }).eq("id", invite.id);
 
-  // Fetch CA business name for the success message
-  const { data: caProfile } = await supabase
+  const { data: caProfile } = await admin
     .from("profiles")
     .select("business_name")
     .eq("id", invite.ca_user_id)

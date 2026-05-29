@@ -85,6 +85,8 @@ export async function GET(
 ): Promise<NextResponse<ApiResponse<{ caBusinessName: string; caEmail: string }>>> {
   const token = request.nextUrl.searchParams.get("token");
 
+  console.log("[GET /api/ca/invite] token:", token);
+
   if (!token) {
     return NextResponse.json(
       { success: false, error: "Token required" },
@@ -92,37 +94,45 @@ export async function GET(
     );
   }
 
-  const supabase = await createSupabaseServerClient();
+  // Must use admin client — RLS blocks anon/other-user reads on ca_invites
+  const { createSupabaseAdminClient } = await import("@/lib/supabase/server");
+  const admin = createSupabaseAdminClient();
 
-  const { data: invite } = await supabase
+  const { data: invite, error } = await admin
     .from("ca_invites")
     .select("ca_user_id, status, expires_at")
     .eq("token", token)
     .single<{ ca_user_id: string; status: string; expires_at: string }>();
 
+  console.log("[GET /api/ca/invite] query result:", { invite, error: error?.message });
+
   if (!invite) {
     return NextResponse.json(
-      { success: false, error: "Invalid invite link", code: "INVALID_TOKEN" },
+      { success: false, error: "Token not found", code: "NOT_FOUND" },
       { status: 404 }
+    );
+  }
+
+  if (invite.status === "accepted") {
+    return NextResponse.json(
+      { success: false, error: "Invite already accepted", code: "ALREADY_USED" },
+      { status: 410 }
     );
   }
 
   if (invite.status !== "pending" || new Date(invite.expires_at) < new Date()) {
     return NextResponse.json(
-      { success: false, error: "This invite has expired or already been used", code: "TOKEN_EXPIRED" },
+      { success: false, error: "Invite expired", code: "EXPIRED" },
       { status: 410 }
     );
   }
 
-  const { data: caProfile } = await supabase
+  const { data: caProfile } = await admin
     .from("profiles")
     .select("business_name")
     .eq("id", invite.ca_user_id)
     .single<Pick<Profile, "business_name">>();
 
-  // Get CA email from auth.users via admin
-  const { createSupabaseAdminClient } = await import("@/lib/supabase/server");
-  const admin = createSupabaseAdminClient();
   const { data: caAuthUser } = await admin.auth.admin.getUserById(invite.ca_user_id);
 
   return NextResponse.json({
