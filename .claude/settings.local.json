@@ -35,7 +35,10 @@
       "Bash(kill -9 10303)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:d[k] for k in ['dependencies','devDependencies'] if k in d}, indent=2\\)\\)\")",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:v for k,v in {**d.get\\('dependencies',{}\\),**d.get\\('devDependencies',{}\\)}.items\\(\\) if 'razor' in k.lower\\(\\) or 'crypto' in k.lower\\(\\)}, indent=2\\)\\)\")",
-      "Bash(npm list *)"
+      "Bash(npm list *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k:d[k] for k in ['dependencies','devDependencies'] if k in d}, indent=2\\)\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(grep -E \"^\\\\s*\\(├|└\\)\\\\s+ƒ\\\\s+\\\\/$\")"
     ]
   }
 }
