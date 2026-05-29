@@ -11,64 +11,34 @@ type InviteError = "not_found" | "expired" | "already_used";
 interface InviteData {
   caBusinessName: string;
   caEmail: string;
+  caUserId: string;
+  invitedEmail: string;
   token: string;
-}
-
-interface DebugInfo {
-  tokenReceived: string;
-  serviceRoleKeyDefined: boolean;
-  supabaseUrlDefined: boolean;
-  queryError: string | null;
-  inviteFound: boolean;
-  inviteStatus: string | null;
-  inviteExpiry: string | null;
-  isExpired: boolean | null;
 }
 
 type InviteResult =
   | { ok: true; data: InviteData }
-  | { ok: false; reason: InviteError; debug: DebugInfo };
+  | { ok: false; reason: InviteError };
 
 async function getInviteData(token: string): Promise<InviteResult> {
-  console.log("[invite] looking up token:", token);
-
-  const debug: DebugInfo = {
-    tokenReceived: token,
-    serviceRoleKeyDefined: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    supabaseUrlDefined: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-    queryError: null,
-    inviteFound: false,
-    inviteStatus: null,
-    inviteExpiry: null,
-    isExpired: null,
-  };
-
   const admin = createSupabaseAdminClient();
 
-  const { data: invite, error } = await admin
+  const { data: invite } = await admin
     .from("ca_invites")
-    .select("ca_user_id, status, expires_at")
+    .select("ca_user_id, status, expires_at, email")
     .eq("token", token)
-    .single<{ ca_user_id: string; status: string; expires_at: string }>();
-
-  debug.queryError = error?.message ?? null;
-  debug.inviteFound = !!invite;
-  debug.inviteStatus = invite?.status ?? null;
-  debug.inviteExpiry = invite?.expires_at ?? null;
-  debug.isExpired = invite ? new Date(invite.expires_at) < new Date() : null;
-
-  console.log("[invite] query result:", { invite, error: error?.message, debug });
+    .single<{ ca_user_id: string; status: string; expires_at: string; email: string }>();
 
   if (!invite) {
-    return { ok: false, reason: "not_found", debug };
+    return { ok: false, reason: "not_found" };
   }
 
   if (invite.status === "accepted") {
-    return { ok: false, reason: "already_used", debug };
+    return { ok: false, reason: "already_used" };
   }
 
   if (invite.status !== "pending" || new Date(invite.expires_at) < new Date()) {
-    return { ok: false, reason: "expired", debug };
+    return { ok: false, reason: "expired" };
   }
 
   const { data: caProfile } = await admin
@@ -79,13 +49,13 @@ async function getInviteData(token: string): Promise<InviteResult> {
 
   const { data: caAuthUser } = await admin.auth.admin.getUserById(invite.ca_user_id);
 
-  console.log("[invite] CA profile:", caProfile?.business_name);
-
   return {
     ok: true,
     data: {
       caBusinessName: caProfile?.business_name ?? "Your CA",
       caEmail: caAuthUser.user?.email ?? "",
+      caUserId: invite.ca_user_id,
+      invitedEmail: invite.email,
       token,
     },
   };
@@ -105,21 +75,7 @@ export default async function InvitePage({
   const { token } = await searchParams;
 
   if (!token) {
-    return (
-      <InvalidInvite
-        message="No invite token provided."
-        debug={{
-          tokenReceived: "(none)",
-          serviceRoleKeyDefined: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-          supabaseUrlDefined: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-          queryError: null,
-          inviteFound: false,
-          inviteStatus: null,
-          inviteExpiry: null,
-          isExpired: null,
-        }}
-      />
-    );
+    return <InvalidInvite message="No invite token provided." />;
   }
 
   const result = await getInviteData(token);
@@ -128,7 +84,6 @@ export default async function InvitePage({
     return (
       <InvalidInvite
         message={INVITE_ERROR_MESSAGES[result.reason] ?? "Invalid invite link."}
-        debug={result.debug}
       />
     );
   }
@@ -143,37 +98,18 @@ export default async function InvitePage({
 
   // If logged in, accept the invite server-side and redirect to dashboard
   if (user) {
-    const admin = createSupabaseAdminClient();
-
-    const { data: caInvite } = await admin
-      .from("ca_invites")
-      .select("ca_user_id")
-      .eq("token", token)
-      .single<{ ca_user_id: string }>();
-
-    if (caInvite?.ca_user_id === user.id) {
-      return (
-        <InvalidInvite
-          message="You cannot accept your own invite."
-          debug={{
-            tokenReceived: token,
-            serviceRoleKeyDefined: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-            supabaseUrlDefined: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-            queryError: null,
-            inviteFound: true,
-            inviteStatus: "pending",
-            inviteExpiry: null,
-            isExpired: false,
-          }}
-        />
-      );
+    if (inviteData.caUserId === user.id) {
+      return <InvalidInvite message="You cannot accept your own invite." />;
     }
+
+    const admin = createSupabaseAdminClient();
 
     await admin.from("ca_clients").upsert(
       {
-        ca_user_id: caInvite?.ca_user_id,
+        ca_user_id: inviteData.caUserId,
         client_user_id: user.id,
         status: "active",
+        invited_email: inviteData.invitedEmail,
         accepted_at: new Date().toISOString(),
       },
       { onConflict: "ca_user_id,client_user_id" }
@@ -181,14 +117,17 @@ export default async function InvitePage({
 
     await admin.from("ca_invites").update({ status: "accepted" }).eq("token", token);
 
-    redirect(`/dashboard?invite_accepted=1&ca=${encodeURIComponent(inviteData.caBusinessName)}`);
+    redirect(
+      `/dashboard?invite_accepted=true&ca_name=${encodeURIComponent(inviteData.caBusinessName)}`
+    );
   }
 
   // Not logged in — show invite page with sign in/register CTAs
-  const callbackUrl = encodeURIComponent(`/invite?token=${token}`);
-
   return (
-    <div className="min-h-screen bg-[#fefce8] flex items-center justify-center p-4" style={{ fontFamily: "var(--font-body)" }}>
+    <div
+      className="min-h-screen bg-[#fefce8] flex items-center justify-center p-4"
+      style={{ fontFamily: "var(--font-body)" }}
+    >
       {/* Minimal nav */}
       <div className="fixed top-0 left-0 right-0 border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-16 max-w-4xl items-center px-4 sm:px-6">
@@ -205,30 +144,30 @@ export default async function InvitePage({
 
       <div className="w-full max-w-md pt-16">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-saffron-50 border border-saffron-200">
-            <Users className="h-7 w-7 text-saffron-500" />
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-orange-50 border border-orange-200">
+            <Users className="h-7 w-7 text-orange-500" />
           </div>
           <h1 className="font-display text-2xl font-bold text-[#0f172a] mb-2">
             You&apos;ve been invited!
           </h1>
           <p className="text-slate-600 mb-1">
-            <span className="font-semibold">{inviteData.caBusinessName}</span> has invited you to
-            connect your BharatCompliance account.
+            <span className="font-semibold text-[#0f172a]">{inviteData.caBusinessName}</span> has
+            invited you to connect your BharatCompliance account.
           </p>
           <p className="text-sm text-slate-400 mb-8">
-            Once connected, your CA can view your invoices, compliance status, and help with
-            GST reconciliation.
+            Once connected, your CA can view your invoices, compliance status, and help with GST
+            reconciliation.
           </p>
           <div className="space-y-3">
             <Link
-              href={`/register?callbackUrl=${callbackUrl}`}
+              href={`/register?invite=${encodeURIComponent(token)}`}
               className="flex items-center justify-center gap-2 w-full rounded-xl bg-[#f97316] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-orange-500/20 hover:bg-orange-500 transition-all"
             >
               Create account to accept
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href={`/login?callbackUrl=${callbackUrl}`}
+              href={`/login?invite=${encodeURIComponent(token)}`}
               className="flex items-center justify-center gap-2 w-full rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-medium text-[#0f172a] hover:bg-slate-50 transition-all"
             >
               Already have an account? Sign in
@@ -243,10 +182,10 @@ export default async function InvitePage({
   );
 }
 
-function InvalidInvite({ message, debug }: { message: string; debug: DebugInfo }) {
+function InvalidInvite({ message }: { message: string }) {
   return (
     <div className="min-h-screen bg-[#fefce8] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
+      <div className="w-full max-w-md">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-50">
             <AlertCircle className="h-6 w-6 text-red-500" />
@@ -259,16 +198,6 @@ function InvalidInvite({ message, debug }: { message: string; debug: DebugInfo }
           >
             Go to homepage
           </Link>
-        </div>
-
-        {/* Debug panel — always visible, remove after fixing */}
-        <div className="rounded-xl border border-slate-300 bg-slate-900 p-4 text-left">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-            Debug info (temporary)
-          </p>
-          <pre className="text-xs text-green-400 whitespace-pre-wrap break-all font-mono">
-            {JSON.stringify(debug, null, 2)}
-          </pre>
         </div>
       </div>
     </div>

@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
 
 export function InviteAcceptedBanner({ caName }: { caName: string }) {
   const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(false), 10000);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <AnimatePresence>

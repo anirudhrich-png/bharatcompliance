@@ -63,6 +63,23 @@ function RegisterForm() {
       password: data.password,
     });
 
+    const inviteToken = searchParams.get("invite");
+    if (inviteToken) {
+      const res = await fetch("/api/ca/invite/accept", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: inviteToken }),
+      });
+      const json = (await res.json()) as { success: boolean; data?: { caBusinessName: string } };
+      if (json.success) {
+        router.push(
+          `/dashboard?invite_accepted=true&ca_name=${encodeURIComponent(json.data?.caBusinessName ?? "Your CA")}`
+        );
+        router.refresh();
+        return;
+      }
+    }
+
     const callbackUrl = searchParams.get("callbackUrl");
     router.push(callbackUrl ?? "/dashboard");
     router.refresh();

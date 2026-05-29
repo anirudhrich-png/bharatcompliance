@@ -501,23 +501,32 @@ CREATE POLICY "CAs manage own invites" ON ca_invites FOR ALL USING (auth.uid() =
 POST   /api/ca/invite              → Create invite link (CA plan, max 20 clients)
 GET    /api/ca/invite?token=xxx    → Validate token, return CA name (public)
 POST   /api/ca/invite/accept       → Accept invite (auth required), links client
+DELETE /api/ca/invite/[inviteId]   → Cancel a pending invite (CA only)
 GET    /api/ca/clients             → List active clients with stats (CA plan)
 DELETE /api/ca/clients/[clientId]  → Revoke client access
 GET    /api/ca/clients/[clientId]  → Fetch client detail data (CA-scoped)
+GET    /api/notifications          → Recent client connections + upcoming deadlines (≤3 days)
 ```
 
 #### Pages & Components
-- `/ca` — CA Partner Dashboard: client grid with per-client stats, invite modal, pending invites list, upgrade wall for non-CA plans
+- `/ca` — CA Partner Dashboard: client grid with per-client stats, invite modal, pending invites list with Cancel buttons, upgrade wall for non-CA plans
 - `/ca/[clientId]` — Client Detail: read-only view of client's invoices, compliance calendar, ITC stats, GSTR status with "CA View" badge
 - `/invite?token=xxx` — Public invite acceptance page; auto-accepts server-side if logged in, shows login/register CTAs if not
-- `src/components/ca/CADashboardClient.tsx` — full CA dashboard UI with invite modal and remove confirmation
+- `src/components/ca/CADashboardClient.tsx` — full CA dashboard UI with invite modal, remove + cancel-invite confirmation
 - `src/components/ca/ClientDetailClient.tsx` — read-only client detail view
-- `src/components/dashboard/InviteAcceptedBanner.tsx` — success banner on dashboard after accepting invite
+- `src/components/dashboard/InviteAcceptedBanner.tsx` — success banner on dashboard after accepting invite (auto-dismisses after 10s)
+- `src/components/layout/NotificationBell.tsx` — bell dropdown: new client connections + upcoming deadlines, with unread badge count
+
+#### Invite flow
+- Logged-in user hits `/invite?token=xxx` → server auto-accepts → redirects to `/dashboard?invite_accepted=true&ca_name=...`
+- Logged-out user: `/invite` page shows CTAs → `/register?invite=TOKEN` or `/login?invite=TOKEN`
+- After login/register: auth pages detect `invite` param, call `POST /api/ca/invite/accept`, then redirect to `/dashboard?invite_accepted=true&ca_name=...`
+- Dashboard detects `invite_accepted=true` and shows `InviteAcceptedBanner` (10s auto-dismiss)
 
 #### Key implementation details
 - Admin client (`createSupabaseAdminClient`) used to fetch cross-user data (client invoices, profiles) — bypasses RLS with application-layer auth check
 - Sidebar + MobileNav show "Clients" link only when `profile.plan === 'ca'`
-- Login and register pages support `callbackUrl` query param for post-invite redirect
+- Auth pages use `invite` query param (token only) for post-invite flow; `callbackUrl` still supported for other redirect needs
 - `useSearchParams()` wrapped in `<Suspense>` in both auth pages to satisfy Next.js static pre-rendering
 
 ### ✅ Phase 4 — Mobile Responsiveness (COMPLETE)

@@ -396,8 +396,36 @@ function ClientCard({
 }
 
 // ── Pending Invites ─────────────────────────────────────────────────────────
-function PendingInvites({ invites }: { invites: { id: string; email: string; created_at: string; expires_at: string }[] }) {
+function PendingInvites({
+  invites,
+  onCancel,
+}: {
+  invites: { id: string; email: string; created_at: string; expires_at: string }[];
+  onCancel: (id: string) => void;
+}) {
+  const [cancelling, setCancelling] = useState<string | null>(null);
+  const { toast } = useToast();
+
   if (invites.length === 0) return null;
+
+  const handleCancel = async (id: string) => {
+    setCancelling(id);
+    try {
+      const res = await fetch(`/api/ca/invite/${id}`, { method: "DELETE" });
+      const json = await res.json() as { success: boolean; error?: string };
+      if (json.success) {
+        onCancel(id);
+        toast({ title: "Invite cancelled" });
+      } else {
+        toast({ title: "Error", description: json.error ?? "Failed to cancel invite", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Network error", description: "Please try again.", variant: "destructive" });
+    } finally {
+      setCancelling(null);
+    }
+  };
+
   return (
     <div className="rounded-xl border bg-card p-5">
       <h3 className="font-display text-sm font-semibold text-foreground mb-3">
@@ -410,13 +438,27 @@ function PendingInvites({ invites }: { invites: { id: string; email: string; cre
           );
           return (
             <div key={inv.id} className="flex items-center justify-between rounded-lg bg-amber-50 border border-amber-100 px-3 py-2.5">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <Mail className="h-3.5 w-3.5 text-amber-600 flex-shrink-0" />
                 <span className="text-sm text-foreground truncate">{inv.email}</span>
               </div>
-              <span className="text-xs text-amber-600 font-medium flex-shrink-0 ml-2">
-                Expires in {expiresIn}d
-              </span>
+              <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                <span className="text-xs text-amber-600 font-medium">
+                  {expiresIn}d left
+                </span>
+                <button
+                  onClick={() => handleCancel(inv.id)}
+                  disabled={cancelling === inv.id}
+                  className="flex items-center justify-center rounded-md p-1 text-amber-600 hover:bg-amber-200 disabled:opacity-50 transition-colors"
+                  aria-label="Cancel invite"
+                >
+                  {cancelling === inv.id ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <X className="h-3.5 w-3.5" />
+                  )}
+                </button>
+              </div>
             </div>
           );
         })}
@@ -461,6 +503,10 @@ export function CADashboardClient({
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<{ id: string; name: string } | null>(null);
   const [removeLoading, setRemoveLoading] = useState(false);
+
+  const handleCancelInvite = useCallback((id: string) => {
+    setPendingInvites((prev) => prev.filter((inv) => inv.id !== id));
+  }, []);
 
   if (profile.plan !== "ca") return <UpgradeWall />;
 
@@ -517,7 +563,9 @@ export function CADashboardClient({
       </div>
 
       {/* Pending invites */}
-      {pendingInvites.length > 0 && <PendingInvites invites={pendingInvites} />}
+      {pendingInvites.length > 0 && (
+        <PendingInvites invites={pendingInvites} onCancel={handleCancelInvite} />
+      )}
 
       {/* Client grid or empty state */}
       {clients.length === 0 ? (

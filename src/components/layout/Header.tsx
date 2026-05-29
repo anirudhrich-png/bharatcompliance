@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Bell } from "lucide-react";
 import { formatGSTIN } from "@/lib/utils";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import type { Profile } from "@/types";
 
 interface HeaderProps {
@@ -78,17 +78,7 @@ export function Header({ profile, title }: HeaderProps) {
           </div>
         )}
 
-        <button
-          className="relative p-2 rounded-lg hover:bg-muted/70 transition-colors duration-150 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          aria-label="Notifications"
-        >
-          <Bell className="h-[18px] w-[18px] text-muted-foreground" />
-          <motion.span
-            className="absolute top-2 right-2 w-2 h-2 rounded-full bg-saffron-500"
-            animate={{ scale: [1, 1.3, 1] }}
-            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
-          />
-        </button>
+        <NotificationBell />
       </div>
     </motion.header>
   );
