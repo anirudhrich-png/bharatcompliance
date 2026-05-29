@@ -174,10 +174,31 @@ function DashboardSkeleton() {
   );
 }
 
-export default function DashboardPage() {
+import { InviteAcceptedBanner } from "@/components/dashboard/InviteAcceptedBanner";
+
+export default function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite_accepted?: string; ca?: string }>;
+}) {
   return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardData />
-    </Suspense>
+    <>
+      <Suspense fallback={null}>
+        <InviteAcceptedBannerWrapper searchParams={searchParams} />
+      </Suspense>
+      <Suspense fallback={<DashboardSkeleton />}>
+        <DashboardData />
+      </Suspense>
+    </>
   );
+}
+
+async function InviteAcceptedBannerWrapper({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite_accepted?: string; ca?: string }>;
+}) {
+  const params = await searchParams;
+  if (params.invite_accepted !== "1") return null;
+  return <InviteAcceptedBanner caName={params.ca ?? "Your CA"} />;
 }

@@ -12,17 +12,19 @@ import {
   LogOut,
   Zap,
   ArrowUpRight,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Profile } from "@/types";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/invoice/upload", label: "Invoices", icon: FileText },
-  { href: "/gstr", label: "GSTR Reconciliation", icon: RefreshCcw },
-  { href: "/reminders", label: "Compliance Calendar", icon: Calendar },
-  { href: "/settings", label: "Settings", icon: Settings },
+const BASE_NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, caOnly: false },
+  { href: "/invoice/upload", label: "Invoices", icon: FileText, caOnly: false },
+  { href: "/gstr", label: "GSTR Reconciliation", icon: RefreshCcw, caOnly: false },
+  { href: "/ca", label: "Clients", icon: Users, caOnly: true },
+  { href: "/reminders", label: "Compliance Calendar", icon: Calendar, caOnly: false },
+  { href: "/settings", label: "Settings", icon: Settings, caOnly: false },
 ];
 
 interface SidebarProps {
@@ -80,7 +82,7 @@ export function Sidebar({ profile }: SidebarProps) {
 
       {/* ── Navigation ── */}
       <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }, index) => {
+        {BASE_NAV_ITEMS.filter((item) => !item.caOnly || profile?.plan === "ca").map(({ href, label, icon: Icon }, index) => {
           const isActive =
             href === "/dashboard"
               ? pathname === "/dashboard"

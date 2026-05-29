@@ -2,20 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FileText, RefreshCcw, Calendar, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, RefreshCcw, Calendar, Settings, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import type { Profile } from "@/types";
 
-const NAV_ITEMS = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/invoice/upload", label: "Invoices", icon: FileText },
-  { href: "/gstr", label: "GSTR", icon: RefreshCcw },
-  { href: "/reminders", label: "Calendar", icon: Calendar },
-  { href: "/settings", label: "Settings", icon: Settings },
+const BASE_NAV_ITEMS = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, caOnly: false },
+  { href: "/invoice/upload", label: "Invoices", icon: FileText, caOnly: false },
+  { href: "/gstr", label: "GSTR", icon: RefreshCcw, caOnly: false },
+  { href: "/ca", label: "Clients", icon: Users, caOnly: true },
+  { href: "/reminders", label: "Calendar", icon: Calendar, caOnly: false },
+  { href: "/settings", label: "Settings", icon: Settings, caOnly: false },
 ];
 
-export function MobileNav() {
+interface MobileNavProps {
+  profile?: Profile | null;
+}
+
+export function MobileNav({ profile }: MobileNavProps) {
   const pathname = usePathname();
+  const navItems = BASE_NAV_ITEMS.filter((item) => !item.caOnly || profile?.plan === "ca");
 
   return (
     <nav
@@ -28,7 +35,7 @@ export function MobileNav() {
       }}
     >
       <div className="flex items-stretch justify-around px-1" style={{ minHeight: "56px" }}>
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, label, icon: Icon }) => {
           const isActive =
             href === "/dashboard"
               ? pathname === "/dashboard"

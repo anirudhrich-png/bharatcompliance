@@ -37,7 +37,7 @@ export default async function AppLayout({
         </main>
       </div>
 
-      <MobileNav />
+      <MobileNav profile={profile} />
     </div>
   );
 }

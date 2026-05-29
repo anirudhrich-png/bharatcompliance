@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { FloatingInput } from "@/components/ui/floating-input";
@@ -12,8 +12,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -41,7 +42,8 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    const callbackUrl = searchParams.get("callbackUrl");
+    router.push(callbackUrl ?? "/dashboard");
     router.refresh();
   };
 
@@ -153,5 +155,13 @@ export default function LoginPage() {
         </p>
       </div>
     </motion.div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

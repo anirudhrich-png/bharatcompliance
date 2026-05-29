@@ -104,6 +104,18 @@ export const complianceDateSchema = z.object({
   filing_type: z.enum(["GSTR-1", "GSTR-3B", "GSTR-2B", "ITR", "TDS", "custom"]),
 });
 
+// CA Partner
+export const caInviteSchema = z.object({
+  email: z.string().email("Enter a valid email address"),
+});
+
+export const caInviteAcceptSchema = z.object({
+  token: z.string().uuid("Invalid invite token"),
+});
+
+export type CAInviteInput = z.infer<typeof caInviteSchema>;
+export type CAInviteAcceptInput = z.infer<typeof caInviteAcceptSchema>;
+
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type InvoiceUploadInput = z.infer<typeof invoiceUploadSchema>;

@@ -242,6 +242,39 @@ export const PRICING_PLANS: PricingPlan[] = [
   },
 ];
 
+// --- CA Partner ---
+
+export interface CAClient {
+  id: string;
+  ca_user_id: string;
+  client_user_id: string;
+  status: "pending" | "active" | "revoked";
+  invited_email: string | null;
+  invited_at: string;
+  accepted_at: string | null;
+}
+
+export interface CAInvite {
+  id: string;
+  ca_user_id: string;
+  email: string;
+  token: string;
+  status: "pending" | "accepted" | "expired";
+  created_at: string;
+  expires_at: string;
+}
+
+export interface CAClientSummary {
+  relationshipId: string;
+  clientUserId: string;
+  profile: Pick<Profile, "full_name" | "business_name" | "gstin" | "phone">;
+  invoicesThisMonth: number;
+  pendingMismatches: number;
+  nextDeadline: string | null;
+  lastInvoiceDate: string | null;
+  complianceScore: number;
+}
+
 // --- API Response ---
 
 export type ApiSuccess<T> = {

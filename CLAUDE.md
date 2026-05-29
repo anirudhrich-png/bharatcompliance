@@ -461,7 +461,64 @@ const STANDARD_GST_DATES = [
 - [x] Razorpay subscription flow — `/settings` pricing page (Free/Vyapaar/CA), dynamic checkout.js load, `/api/payments/create-order` + `verify`, plan enforcement on `/api/gstr/reconcile` (403 for free), GSTR upgrade wall
 - [x] WhatsApp reminder bot — Twilio integration, per-reminder send button (Pro only), locked icon for free, cron job sends all due-in-3-days reminders daily at 9 AM UTC, test message from Settings
 - [x] Tally XML export — `src/lib/tally/index.ts` generates TallyPrime-compatible Purchase voucher XML; Export dropdown on Invoice History (CSV all plans, Tally XML Pro+CA); GSTR mismatch CSV export; Tally Integration Guide in Settings
-- [ ] Multi-client (CA plan)
+- [x] Multi-client (CA plan) — CA Partner Dashboard fully implemented (see Phase 7)
+
+### ✅ Phase 7 — CA Partner Dashboard (COMPLETE)
+
+#### Database (run in Supabase SQL Editor)
+```sql
+-- ca_clients: CA ↔ client relationships
+CREATE TABLE ca_clients (
+  id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  ca_user_id    uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  client_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  status        text DEFAULT 'pending' CHECK (status IN ('pending','active','revoked')),
+  invited_email text,
+  invited_at    timestamptz DEFAULT now(),
+  accepted_at   timestamptz,
+  UNIQUE(ca_user_id, client_user_id)
+);
+ALTER TABLE ca_clients ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "CAs manage own clients" ON ca_clients FOR ALL USING (auth.uid() = ca_user_id);
+CREATE POLICY "Clients see own CA relationships" ON ca_clients FOR SELECT USING (auth.uid() = client_user_id);
+
+-- ca_invites: 7-day invite tokens
+CREATE TABLE ca_invites (
+  id         uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  ca_user_id uuid REFERENCES profiles(id) ON DELETE CASCADE,
+  email      text NOT NULL,
+  token      text UNIQUE NOT NULL DEFAULT gen_random_uuid()::text,
+  status     text DEFAULT 'pending' CHECK (status IN ('pending','accepted','expired')),
+  created_at timestamptz DEFAULT now(),
+  expires_at timestamptz DEFAULT now() + interval '7 days'
+);
+ALTER TABLE ca_invites ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "CAs manage own invites" ON ca_invites FOR ALL USING (auth.uid() = ca_user_id);
+```
+
+#### API Routes
+```
+POST   /api/ca/invite              → Create invite link (CA plan, max 20 clients)
+GET    /api/ca/invite?token=xxx    → Validate token, return CA name (public)
+POST   /api/ca/invite/accept       → Accept invite (auth required), links client
+GET    /api/ca/clients             → List active clients with stats (CA plan)
+DELETE /api/ca/clients/[clientId]  → Revoke client access
+GET    /api/ca/clients/[clientId]  → Fetch client detail data (CA-scoped)
+```
+
+#### Pages & Components
+- `/ca` — CA Partner Dashboard: client grid with per-client stats, invite modal, pending invites list, upgrade wall for non-CA plans
+- `/ca/[clientId]` — Client Detail: read-only view of client's invoices, compliance calendar, ITC stats, GSTR status with "CA View" badge
+- `/invite?token=xxx` — Public invite acceptance page; auto-accepts server-side if logged in, shows login/register CTAs if not
+- `src/components/ca/CADashboardClient.tsx` — full CA dashboard UI with invite modal and remove confirmation
+- `src/components/ca/ClientDetailClient.tsx` — read-only client detail view
+- `src/components/dashboard/InviteAcceptedBanner.tsx` — success banner on dashboard after accepting invite
+
+#### Key implementation details
+- Admin client (`createSupabaseAdminClient`) used to fetch cross-user data (client invoices, profiles) — bypasses RLS with application-layer auth check
+- Sidebar + MobileNav show "Clients" link only when `profile.plan === 'ca'`
+- Login and register pages support `callbackUrl` query param for post-invite redirect
+- `useSearchParams()` wrapped in `<Suspense>` in both auth pages to satisfy Next.js static pre-rendering
 
 ### ✅ Phase 4 — Mobile Responsiveness (COMPLETE)
 - [x] Sidebar hidden on mobile (`md:hidden`), bottom nav visible on mobile (`md:hidden`)
