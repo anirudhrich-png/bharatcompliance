@@ -141,8 +141,20 @@ export async function POST(
       );
     }
 
-    const body: unknown = await request.json();
-    const parsed = gstr2bUploadSchema.safeParse(body);
+    const rawBody = (await request.json()) as Record<string, unknown>;
+
+    console.log("[gstr/upload] body keys:", Object.keys(rawBody));
+
+    // Accept web format (jsonData) and Flutter variants (fileContent / data)
+    const normalizedBody = {
+      period: rawBody.period,
+      jsonData:
+        (typeof rawBody.jsonData === "string" ? rawBody.jsonData : null) ??
+        (typeof rawBody.fileContent === "string" ? rawBody.fileContent : null) ??
+        (typeof rawBody.data === "string" ? rawBody.data : null),
+    };
+
+    const parsed = gstr2bUploadSchema.safeParse(normalizedBody);
 
     if (!parsed.success) {
       return NextResponse.json(

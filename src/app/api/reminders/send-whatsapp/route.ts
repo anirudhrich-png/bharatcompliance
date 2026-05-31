@@ -25,6 +25,17 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<{ phone: string }>>> {
   try {
+    if (
+      !process.env.TWILIO_ACCOUNT_SID ||
+      !process.env.TWILIO_AUTH_TOKEN ||
+      !process.env.TWILIO_WHATSAPP_NUMBER
+    ) {
+      return NextResponse.json(
+        { success: false, error: "WhatsApp not configured on server" },
+        { status: 503 }
+      );
+    }
+
     const { user, supabase } = await getSupabaseUser(request);
 
     if (!user) {
