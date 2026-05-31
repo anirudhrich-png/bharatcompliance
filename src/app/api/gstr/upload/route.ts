@@ -145,13 +145,20 @@ export async function POST(
 
     console.log("[gstr/upload] body keys:", Object.keys(rawBody));
 
-    // Accept web format (jsonData) and Flutter variants (fileContent / data)
+    // Accept both string and pre-parsed object from Flutter (jsonData / fileContent / data)
+    const rawJsonData = rawBody.jsonData ?? rawBody.fileContent ?? rawBody.data;
+
+    console.log("[gstr/upload] jsonData type:", typeof rawJsonData);
+
+    // Zod schema requires a string — stringify objects so validation passes
     const normalizedBody = {
       period: rawBody.period,
       jsonData:
-        (typeof rawBody.jsonData === "string" ? rawBody.jsonData : null) ??
-        (typeof rawBody.fileContent === "string" ? rawBody.fileContent : null) ??
-        (typeof rawBody.data === "string" ? rawBody.data : null),
+        typeof rawJsonData === "string"
+          ? rawJsonData
+          : rawJsonData != null
+            ? JSON.stringify(rawJsonData)
+            : null,
     };
 
     const parsed = gstr2bUploadSchema.safeParse(normalizedBody);
@@ -163,11 +170,10 @@ export async function POST(
       );
     }
 
-    const { jsonData } = parsed.data;
-
     let gstrParsed: unknown;
     try {
-      gstrParsed = JSON.parse(jsonData);
+      // Use the original value directly if already an object (Flutter), parse if string (web)
+      gstrParsed = typeof rawJsonData === "string" ? JSON.parse(rawJsonData) : rawJsonData;
     } catch {
       return NextResponse.json(
         { success: false, error: "Invalid JSON data" },
