@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseUser } from "@/lib/supabase/server";
 import { complianceDateSchema } from "@/lib/validations";
 import type { ApiResponse, ComplianceDate, FilingType } from "@/types";
 
@@ -57,13 +57,10 @@ function buildComplianceDates(userId: string): {
 }
 
 export async function GET(
-  _request: NextRequest
+  request: NextRequest
 ): Promise<NextResponse<ApiResponse<{ dates: ComplianceDate[] }>>> {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase } = await getSupabaseUser(request);
 
     if (!user) {
       return NextResponse.json(
@@ -151,10 +148,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<ComplianceDate>>> {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase } = await getSupabaseUser(request);
 
     if (!user) {
       return NextResponse.json(

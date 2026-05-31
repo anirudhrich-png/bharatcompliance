@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseUser } from "@/lib/supabase/server";
 import type { ApiResponse, InvoiceUploadResult } from "@/types";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -9,10 +9,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<InvoiceUploadResult>>> {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase } = await getSupabaseUser(request);
 
     if (!user) {
       return NextResponse.json(

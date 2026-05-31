@@ -1,15 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseUser } from "@/lib/supabase/server";
 import { invoiceSaveSchema, invoiceFilterSchema } from "@/lib/validations";
 import type { ApiResponse, Invoice } from "@/types";
 
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<Invoice>>> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, supabase } = await getSupabaseUser(request);
 
   if (!user) {
     return NextResponse.json(
@@ -58,10 +55,7 @@ export async function POST(
 export async function GET(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<{ invoices: Invoice[]; total: number }>>> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user, supabase } = await getSupabaseUser(request);
 
   if (!user) {
     return NextResponse.json(

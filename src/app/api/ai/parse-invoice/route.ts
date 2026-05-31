@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseUser } from "@/lib/supabase/server";
 import { parseInvoiceFromBase64 } from "@/lib/claude";
 import { invoiceUploadSchema } from "@/lib/validations";
 import type { ApiResponse, ParsedInvoiceData } from "@/types";
@@ -7,10 +7,7 @@ import type { ApiResponse, ParsedInvoiceData } from "@/types";
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<ParsedInvoiceData>>> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { user } = await getSupabaseUser(request);
 
   if (!user) {
     return NextResponse.json(

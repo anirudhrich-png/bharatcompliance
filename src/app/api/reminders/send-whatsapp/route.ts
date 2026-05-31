@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseUser } from "@/lib/supabase/server";
 import {
   sendWhatsAppMessage,
   formatReminderMessage,
@@ -25,10 +25,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<{ phone: string }>>> {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase } = await getSupabaseUser(request);
 
     if (!user) {
       return NextResponse.json(

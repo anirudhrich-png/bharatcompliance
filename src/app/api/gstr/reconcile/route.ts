@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSupabaseUser } from "@/lib/supabase/server";
 import type {
   ApiResponse,
   GSTR2BEntry,
@@ -22,10 +22,7 @@ export async function POST(
   request: NextRequest
 ): Promise<NextResponse<ApiResponse<ReconciliationResult>>> {
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { user, supabase } = await getSupabaseUser(request);
 
     if (!user) {
       return NextResponse.json(
